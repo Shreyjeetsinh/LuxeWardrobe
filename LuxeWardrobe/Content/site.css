@@ -186,3 +186,84 @@ a { color: inherit; }
   .account-order-row{align-items:start}
   .size-option small{font-size:.6rem}
 }
+
+
+/* Admin mobile responsive v2 */
+.admin-main{width:100%;overflow-x:hidden}
+.admin-mobilebar{position:sticky;top:0;z-index:1030;height:62px;padding:0 14px;background:#0a0b0d;color:#fff;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.admin-menu-btn{width:40px;height:40px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#17191d;color:#fff;display:grid;place-items:center;font-size:1.35rem}
+.admin-mobile-brand{color:#fff;text-decoration:none;font-weight:800;letter-spacing:.07em;font-size:.9rem;white-space:nowrap}
+.admin-mobile-brand span{color:#8b9199;font-weight:500}
+.admin-mobile-user{width:40px;height:40px;display:grid;place-items:center;color:#d5d7da;font-size:1.2rem}
+.admin-offcanvas{--bs-offcanvas-width:min(290px,86vw);background:#0a0b0d;color:#fff;border-right:1px solid rgba(255,255,255,.08)}
+.admin-offcanvas .offcanvas-header{border-bottom:1px solid rgba(255,255,255,.08);padding:1.25rem}
+.admin-offcanvas .offcanvas-body{padding:1rem 1.25rem 1.25rem}
+.admin-mobile-nav{display:grid!important;overflow:visible!important;margin-top:.25rem!important}
+.admin-mobile-nav a{font-size:1rem;padding:.9rem 1rem}
+.admin-mobile-account{border-top:1px solid rgba(255,255,255,.08);padding-top:1rem}
+.admin-alert-wrap{padding-left:1rem!important;padding-right:1rem!important}
+.admin-content>.container,.admin-content>.container-fluid{max-width:none}
+.metric-card strong{font-size:clamp(1.6rem,4vw,2.2rem);overflow-wrap:anywhere}
+.admin-head{min-width:0}
+.admin-link-card{min-width:0}
+.admin-link-card span{min-width:0}
+.admin-link-card small{white-space:normal}
+.admin-products-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.admin-products-table table{min-width:760px}
+.admin-orders-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.admin-orders-table table{min-width:900px}
+.admin-mobile-list{display:grid;gap:12px}
+.admin-mobile-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px}
+.admin-mobile-card-head{display:flex;align-items:center;gap:12px;min-width:0}
+.admin-mobile-card-head .admin-thumb{width:64px;height:78px;flex:0 0 auto}
+.admin-mobile-card-title{min-width:0;flex:1}
+.admin-mobile-card-title strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-mobile-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.admin-mobile-meta span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.admin-mobile-meta small{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+.admin-mobile-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.admin-mobile-actions .btn,.admin-mobile-actions form{flex:1 1 auto}
+.admin-mobile-actions form .btn{width:100%}
+.admin-order-mobile-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px}
+.admin-order-mobile-card .form-select{min-width:0}
+.admin-order-status-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px}
+.admin-save-button{min-width:180px}
+
+@media(max-width:991px){
+  .admin-shell{display:block;min-height:100vh}
+  .admin-main{min-height:100vh}
+  .admin-content{padding:0 0 1.25rem}
+  .admin-content>.container,.admin-content>.container-fluid{padding-left:14px!important;padding-right:14px!important}
+  .admin-content .py-5{padding-top:1.5rem!important;padding-bottom:1.5rem!important}
+  .admin-content .py-4{padding-top:1.25rem!important;padding-bottom:1.25rem!important}
+  .admin-head{align-items:flex-start;flex-direction:column}
+  .admin-topbar{position:static}
+}
+
+@media(max-width:767px){
+  .admin-content .display-6{font-size:clamp(1.8rem,8vw,2.4rem)}
+  .metric-card{min-height:118px;padding:1rem;border-radius:18px}
+  .metric-card span{font-size:.82rem}
+  .admin-link-card{grid-template-columns:auto minmax(0,1fr) auto;padding:1rem;border-radius:16px}
+  .admin-image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-upload-box{padding:.85rem}
+  .admin-save-button{width:100%;min-width:0}
+  .admin-content .summary-card{padding:1rem}
+  .admin-products-table,.admin-orders-table{border-radius:16px!important}
+}
+
+@media(max-width:575px){
+  .admin-mobilebar{height:58px;padding:0 10px}
+  .admin-mobile-brand{font-size:.78rem;letter-spacing:.045em}
+  .admin-menu-btn,.admin-mobile-user{width:38px;height:38px}
+  .admin-content>.container,.admin-content>.container-fluid{padding-left:10px!important;padding-right:10px!important}
+  .admin-alert-wrap{padding-left:10px!important;padding-right:10px!important}
+  .admin-image-grid{grid-template-columns:1fr}
+  .admin-mobile-meta{grid-template-columns:1fr 1fr}
+  .admin-mobile-actions{display:grid;grid-template-columns:1fr 1fr}
+  .admin-mobile-actions .btn,.admin-mobile-actions form{width:100%}
+  .admin-order-status-form{grid-template-columns:1fr}
+  .admin-order-status-form .btn{width:100%}
+  .admin-login-shell{min-height:100svh;padding:10px}
+  .admin-login-card{padding:1.15rem;border-radius:18px}
+}
