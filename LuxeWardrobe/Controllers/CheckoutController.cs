@@ -22,11 +22,15 @@ namespace LuxeWardrobe.Controllers
             var cart = CartPricingService.Build(_db, SessionCartService.GetItems(Session), SessionCartService.GetPromoCode(Session));
             if (cart.IsEmpty) return RedirectToAction("Index", "Cart");
 
+            var customerId = Session["CustomerId"] as int?;
+            var customer = customerId.HasValue ? _db.CustomerAccounts.FirstOrDefault(x => x.Id == customerId.Value) : null;
+
             return View(new CheckoutViewModel
             {
                 Cart = cart,
-                CustomerName = Session["CustomerName"] as string,
-                Email = Session["CustomerEmail"] as string
+                CustomerName = customer == null ? Session["CustomerName"] as string : customer.FullName,
+                Email = customer == null ? Session["CustomerEmail"] as string : customer.Email,
+                Phone = customer == null ? Session["CustomerPhone"] as string : customer.Phone
             });
         }
 
@@ -36,8 +40,11 @@ namespace LuxeWardrobe.Controllers
             if (Session["CustomerId"] == null)
                 return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Checkout") });
 
-            model.CustomerName = Session["CustomerName"] as string;
-            model.Email = Session["CustomerEmail"] as string;
+            var customerId = Session["CustomerId"] as int?;
+            var customer = customerId.HasValue ? _db.CustomerAccounts.FirstOrDefault(x => x.Id == customerId.Value) : null;
+
+            model.CustomerName = customer == null ? Session["CustomerName"] as string : customer.FullName;
+            model.Email = customer == null ? Session["CustomerEmail"] as string : customer.Email;
 
             var sessionItems = SessionCartService.GetItems(Session).ToList();
             var cart = CartPricingService.Build(_db, sessionItems, SessionCartService.GetPromoCode(Session));
@@ -68,6 +75,7 @@ namespace LuxeWardrobe.Controllers
 
                     var order = new Order
                     {
+                        CustomerId = customerId,
                         OrderNumber = CreateOrderNumber(),
                         CustomerName = model.CustomerName.Trim(),
                         Email = model.Email.Trim(),
@@ -103,6 +111,13 @@ namespace LuxeWardrobe.Controllers
                     }
 
                     _db.Orders.Add(order);
+
+                    if (customer != null && !string.Equals(customer.Phone, model.Phone, StringComparison.Ordinal))
+                    {
+                        customer.Phone = model.Phone.Trim();
+                        Session["CustomerPhone"] = customer.Phone;
+                    }
+
                     _db.SaveChanges();
                     transaction.Commit();
 
