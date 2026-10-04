@@ -2,6 +2,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using LuxeWardrobe.Data;
+using LuxeWardrobe.Services;
 using LuxeWardrobe.ViewModels;
 
 namespace LuxeWardrobe.Controllers
@@ -37,9 +38,13 @@ namespace LuxeWardrobe.Controllers
                 default: query = query.OrderByDescending(x => x.CreatedAtUtc); break;
             }
 
+            var products = query.ToList();
+            var productIds = products.Select(x => x.Id).ToList();
+
             var model = new CatalogViewModel
             {
-                Products = query.ToList(),
+                Products = products,
+                PrimaryImageIds = ProductImageService.GetPrimaryImageIds(_db, productIds),
                 Categories = _db.Products.Where(x => x.IsActive).Select(x => x.Category).Distinct().OrderBy(x => x).ToList(),
                 Query = q,
                 Category = category,

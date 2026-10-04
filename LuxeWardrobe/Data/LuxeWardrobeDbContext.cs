@@ -22,6 +22,7 @@ namespace LuxeWardrobe.Data
 
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductSizeInventory> ProductSizeInventories { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<AdminUser> AdminUsers { get; set; }

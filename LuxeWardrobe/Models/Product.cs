@@ -11,6 +11,7 @@ namespace LuxeWardrobe.Models
         public Product()
         {
             Sizes = new HashSet<ProductSizeInventory>();
+            Images = new HashSet<ProductImage>();
         }
 
         public int Id { get; set; }
@@ -42,6 +43,7 @@ namespace LuxeWardrobe.Models
         public DateTime CreatedAtUtc { get; set; }
 
         public virtual ICollection<ProductSizeInventory> Sizes { get; set; }
+        public virtual ICollection<ProductImage> Images { get; set; }
 
         [NotMapped]
         public int TotalStock

@@ -22,6 +22,8 @@ namespace LuxeWardrobe.Services
                 .Where(x => productIds.Contains(x.Id) && x.IsActive)
                 .ToList();
 
+            var primaryImageIds = ProductImageService.GetPrimaryImageIds(db, productIds);
+
             foreach (var cartItem in items)
             {
                 var product = products.FirstOrDefault(x => x.Id == cartItem.ProductId);
@@ -36,7 +38,7 @@ namespace LuxeWardrobe.Services
                     ProductId = product.Id,
                     ProductName = product.Name,
                     Slug = product.Slug,
-                    ImageFileName = product.ImageFileName,
+                    ImageId = primaryImageIds.ContainsKey(product.Id) ? (int?)primaryImageIds[product.Id] : null,
                     Color = product.Color,
                     Size = inventory.Size,
                     Quantity = safeQuantity,
@@ -53,7 +55,7 @@ namespace LuxeWardrobe.Services
                 if (string.Equals(promoCode, SupportedPromoCode, StringComparison.OrdinalIgnoreCase) && result.Subtotal >= 1500m)
                 {
                     result.Discount = Math.Min(Math.Round(result.Subtotal * 0.10m, 2), 500m);
-                    result.PromoMessage = "LUXE10 applied — 10% off (up to ₹500).";
+                    result.PromoMessage = "LUXE10 applied - 10% off (up to ₹500).";
                 }
                 else if (string.Equals(promoCode, SupportedPromoCode, StringComparison.OrdinalIgnoreCase))
                 {

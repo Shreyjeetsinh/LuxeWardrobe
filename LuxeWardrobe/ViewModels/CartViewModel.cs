@@ -8,7 +8,7 @@ namespace LuxeWardrobe.ViewModels
         public int ProductId { get; set; }
         public string ProductName { get; set; }
         public string Slug { get; set; }
-        public string ImageFileName { get; set; }
+        public int? ImageId { get; set; }
         public string Color { get; set; }
         public string Size { get; set; }
         public int Quantity { get; set; }

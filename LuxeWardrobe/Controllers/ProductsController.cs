@@ -1,3 +1,4 @@
+using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -20,8 +21,17 @@ namespace LuxeWardrobe.Controllers
             return View(new ProductDetailsViewModel
             {
                 Product = product,
-                GalleryImages = ProductGalleryService.GetImages(product)
+                GalleryImages = ProductImageService.GetImages(_db, product.Id)
             });
+        }
+
+        [OutputCache(Duration = 3600, VaryByParam = "id")]
+        public ActionResult Image(int id)
+        {
+            var image = _db.ProductImages.FirstOrDefault(x => x.Id == id && x.Product.IsActive);
+            if (image == null) return HttpNotFound();
+
+            return File(image.ImageData, image.ContentType);
         }
 
         protected override void Dispose(bool disposing)

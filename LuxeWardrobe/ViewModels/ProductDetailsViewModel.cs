@@ -6,6 +6,6 @@ namespace LuxeWardrobe.ViewModels
     public class ProductDetailsViewModel
     {
         public Product Product { get; set; }
-        public List<string> GalleryImages { get; set; }
+        public List<ProductImageInfoViewModel> GalleryImages { get; set; }
     }
 }
