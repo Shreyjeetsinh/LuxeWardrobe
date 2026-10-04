@@ -2,42 +2,42 @@
 @{
     ViewBag.Title = Model.Product.Name;
     var available = Model.Product.Sizes.Where(x => x.StockQuantity > 0).OrderBy(x => x.Id).ToList();
-    var gallery = Model.GalleryImages ?? new List<string>();
+    var gallery = Model.GalleryImages ?? new List<LuxeWardrobe.ViewModels.ProductImageInfoViewModel>();
 }
-<div class="container py-5">
-    <div class="row g-5 align-items-start">
+<div class="container py-4 py-lg-5">
+    <div class="row g-4 g-lg-5 align-items-start">
         <div class="col-lg-6">
-            <div class="product-gallery">
-                <div class="product-thumbnails">
-                    @for (var i = 0; i < gallery.Count; i++)
-                    {
-                        var image = gallery[i];
-                        var resolvedImage = image.StartsWith("~") ? Url.Content(image) : image;
-                        <button type="button"
-                                class="product-thumb-btn @(i == 0 ? "active" : "")"
-                                data-gallery-image="@resolvedImage"
-                                aria-label="View image @(i + 1)">
-                            <img src="@resolvedImage"
-                                 alt="@Model.Product.Name image @(i + 1)"
-                                 onerror="luxeImageFallback(this)" />
-                        </button>
-                    }
-                </div>
+            @if (gallery.Any())
+            {
+                <div class="product-gallery">
+                    <div class="product-thumbnails">
+                        @for (var i = 0; i < gallery.Count; i++)
+                        {
+                            var image = gallery[i];
+                            var imageUrl = Url.Action("Image", "Products", new { id = image.Id });
+                            <button type="button"
+                                    class="product-thumb-btn @(i == 0 ? "active" : "")"
+                                    data-gallery-image="@imageUrl"
+                                    aria-label="View image @(i + 1)">
+                                <img src="@imageUrl" alt="@Model.Product.Name image @(i + 1)" />
+                            </button>
+                        }
+                    </div>
 
-                <div class="detail-image-wrap">
-                    @{
-                        var firstImage = gallery.Any() ? gallery[0] : "~/Content/images/products/placeholder.svg";
-                        var resolvedFirstImage = firstImage.StartsWith("~") ? Url.Content(firstImage) : firstImage;
-                    }
-                    <img id="mainProductImage"
-                         src="@resolvedFirstImage"
-                         alt="@Model.Product.Name"
-                         class="detail-image"
-                         data-image-file="@Model.Product.ImageFileName"
-                         data-placeholder="@Url.Content("~/Content/images/products/placeholder.svg")"
-                         onerror="luxeImageFallback(this)" />
+                    <div class="detail-image-wrap">
+                        <img id="mainProductImage"
+                             src="@Url.Action("Image", "Products", new { id = gallery[0].Id })"
+                             alt="@Model.Product.Name"
+                             class="detail-image" />
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="detail-image-wrap">
+                    <img src="@Url.Content("~/Content/images/products/placeholder.svg")" alt="@Model.Product.Name" class="detail-image" />
+                </div>
+            }
         </div>
 
         <div class="col-lg-5 offset-lg-1">
@@ -82,7 +82,7 @@
 
             <div class="benefits mt-4">
                 <div><i class="bi bi-truck"></i><span><strong>Free delivery</strong><small>On orders above &#8377;2,000</small></span></div>
-                <div><i class="bi bi-shield-check"></i><span><strong>Server-validated checkout</strong><small>Price and stock are rechecked</small></span></div>
+                <div><i class="bi bi-shield-check"></i><span><strong>Server-validated checkout</strong><small>Price and stock are checked again before purchase</small></span></div>
             </div>
         </div>
     </div>
