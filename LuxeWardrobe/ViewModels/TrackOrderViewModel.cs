@@ -5,10 +5,12 @@ namespace LuxeWardrobe.ViewModels
 {
     public class TrackOrderViewModel
     {
-        [Required, Display(Name = "Order number")]
+        [Required(ErrorMessage = "Order number is required.")]
+        [Display(Name = "Order number")]
         public string OrderNumber { get; set; }
 
-        [Required, EmailAddress]
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Enter a valid email address.")]
         public string Email { get; set; }
 
         public Order Order { get; set; }
