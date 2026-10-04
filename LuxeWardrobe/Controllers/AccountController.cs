@@ -1,5 +1,7 @@
 using System;
+using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Web.Mvc;
 using LuxeWardrobe.Data;
 using LuxeWardrobe.Models;
@@ -37,6 +39,7 @@ namespace LuxeWardrobe.Controllers
                 return View(model);
             }
 
+            AttachLegacyOrders(customer);
             SignIn(customer);
             TempData["Success"] = "Welcome back, " + customer.FullName + ".";
             return SafeRedirect(returnUrl);
@@ -70,6 +73,7 @@ namespace LuxeWardrobe.Controllers
             {
                 FullName = model.FullName.Trim(),
                 Email = email,
+                Phone = string.IsNullOrWhiteSpace(model.Phone) ? null : model.Phone.Trim(),
                 PasswordHash = PasswordSecurity.HashPassword(model.Password, out salt),
                 PasswordSalt = salt,
                 CreatedAtUtc = DateTime.UtcNow
@@ -78,9 +82,113 @@ namespace LuxeWardrobe.Controllers
             _db.CustomerAccounts.Add(customer);
             _db.SaveChanges();
 
+            AttachLegacyOrders(customer);
             SignIn(customer);
             TempData["Success"] = "Your LuxeWardrobe account is ready.";
             return SafeRedirect(returnUrl);
+        }
+
+        [HttpGet]
+        public ActionResult Profile()
+        {
+            var customer = GetCurrentCustomer();
+            if (customer == null)
+                return RedirectToAction("Login", new { returnUrl = Url.Action("Profile", "Account") });
+
+            AttachLegacyOrders(customer);
+
+            var orders = _db.Orders
+                .Include(x => x.Items)
+                .Where(x => x.CustomerId == customer.Id || (x.CustomerId == null && x.Email == customer.Email))
+                .OrderByDescending(x => x.OrderedAtUtc)
+                .ToList();
+
+            return View(new CustomerAccountViewModel
+            {
+                Profile = new CustomerProfileViewModel
+                {
+                    FullName = customer.FullName,
+                    Email = customer.Email,
+                    Phone = customer.Phone
+                },
+                Orders = orders
+            });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult UpdateProfile(CustomerProfileViewModel model)
+        {
+            var customer = GetCurrentCustomer();
+            if (customer == null)
+                return RedirectToAction("Login", new { returnUrl = Url.Action("Profile", "Account") });
+
+            if (!ModelState.IsValid)
+            {
+                var orders = _db.Orders
+                    .Include(x => x.Items)
+                    .Where(x => x.CustomerId == customer.Id || (x.CustomerId == null && x.Email == customer.Email))
+                    .OrderByDescending(x => x.OrderedAtUtc)
+                    .ToList();
+
+                return View("Profile", new CustomerAccountViewModel
+                {
+                    Profile = model,
+                    Orders = orders
+                });
+            }
+
+            var email = model.Email.Trim().ToLowerInvariant();
+            if (_db.CustomerAccounts.Any(x => x.Id != customer.Id && x.Email == email))
+            {
+                ModelState.AddModelError("Email", "Another account already uses this email.");
+                var orders = _db.Orders
+                    .Include(x => x.Items)
+                    .Where(x => x.CustomerId == customer.Id || (x.CustomerId == null && x.Email == customer.Email))
+                    .OrderByDescending(x => x.OrderedAtUtc)
+                    .ToList();
+
+                return View("Profile", new CustomerAccountViewModel
+                {
+                    Profile = model,
+                    Orders = orders
+                });
+            }
+
+            var oldEmail = customer.Email;
+            var legacyOrders = _db.Orders.Where(x => x.CustomerId == null && x.Email == oldEmail).ToList();
+            foreach (var order in legacyOrders) order.CustomerId = customer.Id;
+
+            customer.FullName = model.FullName.Trim();
+            customer.Email = email;
+            customer.Phone = string.IsNullOrWhiteSpace(model.Phone) ? null : model.Phone.Trim();
+            _db.SaveChanges();
+
+            SignIn(customer);
+            TempData["Success"] = "Your profile has been updated.";
+            return RedirectToAction("Profile");
+        }
+
+        [HttpGet]
+        public ActionResult OrderDetails(int id)
+        {
+            var customer = GetCurrentCustomer();
+            if (customer == null)
+                return RedirectToAction("Login", new { returnUrl = Url.Action("OrderDetails", "Account", new { id }) });
+
+            var order = _db.Orders
+                .Include(x => x.Items)
+                .FirstOrDefault(x => x.Id == id &&
+                    (x.CustomerId == customer.Id || (x.CustomerId == null && x.Email == customer.Email)));
+
+            if (order == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+
+            if (!order.CustomerId.HasValue)
+            {
+                order.CustomerId = customer.Id;
+                _db.SaveChanges();
+            }
+
+            return View(order);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -89,8 +197,24 @@ namespace LuxeWardrobe.Controllers
             Session.Remove("CustomerId");
             Session.Remove("CustomerName");
             Session.Remove("CustomerEmail");
+            Session.Remove("CustomerPhone");
             TempData["Success"] = "You have been signed out.";
             return RedirectToAction("Index", "Home");
+        }
+
+        private CustomerAccount GetCurrentCustomer()
+        {
+            var id = Session["CustomerId"] as int?;
+            return id.HasValue ? _db.CustomerAccounts.FirstOrDefault(x => x.Id == id.Value) : null;
+        }
+
+        private void AttachLegacyOrders(CustomerAccount customer)
+        {
+            var legacyOrders = _db.Orders.Where(x => x.CustomerId == null && x.Email == customer.Email).ToList();
+            if (!legacyOrders.Any()) return;
+
+            foreach (var order in legacyOrders) order.CustomerId = customer.Id;
+            _db.SaveChanges();
         }
 
         private void SignIn(CustomerAccount customer)
@@ -98,6 +222,7 @@ namespace LuxeWardrobe.Controllers
             Session["CustomerId"] = customer.Id;
             Session["CustomerName"] = customer.FullName;
             Session["CustomerEmail"] = customer.Email;
+            Session["CustomerPhone"] = customer.Phone;
         }
 
         private ActionResult SafeRedirect(string returnUrl)
