@@ -1,0 +1,96 @@
+@using System.Linq
+@model LuxeWardrobe.ViewModels.CustomerAccountViewModel
+@{
+    ViewBag.Title = "My account";
+}
+<div class="container py-4 py-lg-5">
+    <div class="account-hero mb-4">
+        <div>
+            <div class="eyebrow">MY ACCOUNT</div>
+            <h1 class="display-6 mb-1">Hello, @Model.Profile.FullName</h1>
+            <p class="text-secondary mb-0">Manage your profile and review every order in one place.</p>
+        </div>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark rounded-pill">Continue shopping</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="summary-card account-card">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="account-avatar"><i class="bi bi-person"></i></div>
+                    <div>
+                        <div class="eyebrow">PROFILE</div>
+                        <h2 class="h4 mb-0">Your details</h2>
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("UpdateProfile", "Account", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                    <div class="mb-3">
+                        <label class="form-label">Full name</label>
+                        @Html.TextBoxFor(x => x.Profile.FullName, new { @class = "form-control", name = "FullName", autocomplete = "name" })
+                        @Html.ValidationMessage("FullName", "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        @Html.TextBoxFor(x => x.Profile.Email, new { @class = "form-control", name = "Email", type = "email", autocomplete = "email" })
+                        @Html.ValidationMessage("Email", "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Phone</label>
+                        @Html.TextBoxFor(x => x.Profile.Phone, new { @class = "form-control", name = "Phone", type = "tel", autocomplete = "tel", placeholder = "Add your phone number" })
+                        @Html.ValidationMessage("Phone", "", new { @class = "text-danger small" })
+                    </div>
+
+                    <button class="btn btn-dark w-100 rounded-pill" type="submit">Save profile</button>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-7" id="orders">
+            <div class="summary-card account-card">
+                <div class="d-flex justify-content-between align-items-end gap-3 mb-3">
+                    <div>
+                        <div class="eyebrow">ORDER HISTORY</div>
+                        <h2 class="h4 mb-0">Your orders</h2>
+                    </div>
+                    <span class="badge rounded-pill text-bg-light border">@Model.Orders.Count</span>
+                </div>
+
+                @if (!Model.Orders.Any())
+                {
+                    <div class="account-empty">
+                        <i class="bi bi-bag-check"></i>
+                        <h3 class="h5">No orders yet</h3>
+                        <p class="text-secondary">Your completed purchases will appear here.</p>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark rounded-pill">Browse collection</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="account-order-list">
+                        @foreach (var order in Model.Orders)
+                        {
+                            <a class="account-order-row" href="@Url.Action("OrderDetails", "Account", new { id = order.Id })">
+                                <div>
+                                    <strong>@order.OrderNumber</strong>
+                                    <div class="small text-secondary">@order.OrderedAtUtc.ToString("dd MMM yyyy") · @order.Items.Sum(x => x.Quantity) item(s)</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="order-status-badge">@order.Status</span>
+                                    <div class="fw-semibold mt-1">&#8377;@order.Total.ToString("N0")</div>
+                                </div>
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
