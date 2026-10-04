@@ -21,7 +21,7 @@
                     <div class="col-md-3"><label class="form-label">PIN code</label>@Html.TextBoxFor(x => x.PostalCode, new { @class = "form-control", inputmode = "numeric", maxlength = "6" })@Html.ValidationMessageFor(x => x.PostalCode, "", new { @class = "text-danger small" })</div>
                 </div>
                 <div class="payment-note mt-4"><i class="bi bi-cash-stack"></i><div><strong>Demo payment mode: Cash on Delivery</strong><div class="small text-secondary">No real payment gateway is connected in this converted version.</div></div></div>
-                <button class="btn btn-dark btn-lg rounded-pill px-5 mt-4">Place order · ₹@Model.Cart.Total.ToString("N0")</button>
+                <button class="btn btn-dark btn-lg rounded-pill px-5 mt-4">Place order &middot; &#8377;@Model.Cart.Total.ToString("N0")</button>
             }
         </div>
         <div class="col-lg-4 offset-lg-1">
@@ -29,12 +29,12 @@
                 <h2 class="h5 mb-3">Your order</h2>
                 @foreach (var line in Model.Cart.Lines)
                 {
-                    <div class="d-flex justify-content-between gap-3 py-2 border-bottom small"><span>@line.ProductName × @line.Quantity <span class="text-secondary">(@line.Size)</span></span><strong>₹@line.LineTotal.ToString("N0")</strong></div>
+                    <div class="d-flex justify-content-between gap-3 py-2 border-bottom small"><span>@line.ProductName &times; @line.Quantity <span class="text-secondary">(@line.Size)</span></span><strong>&#8377;@line.LineTotal.ToString("N0")</strong></div>
                 }
-                <div class="summary-row mt-3"><span>Subtotal</span><span>₹@Model.Cart.Subtotal.ToString("N0")</span></div>
-                <div class="summary-row"><span>Discount</span><span>-₹@Model.Cart.Discount.ToString("N0")</span></div>
-                <div class="summary-row"><span>Delivery</span><span>@(Model.Cart.DeliveryFee == 0 ? "Free" : "₹" + Model.Cart.DeliveryFee.ToString("N0"))</span></div>
-                <hr /><div class="summary-row total"><span>Total</span><span>₹@Model.Cart.Total.ToString("N0")</span></div>
+                <div class="summary-row mt-3"><span>Subtotal</span><span>&#8377;@Model.Cart.Subtotal.ToString("N0")</span></div>
+                <div class="summary-row"><span>Discount</span><span>-&#8377;@Model.Cart.Discount.ToString("N0")</span></div>
+                <div class="summary-row"><span>Delivery</span><span>@(Model.Cart.DeliveryFee == 0 ? "Free" : "&#8377;" + Model.Cart.DeliveryFee.ToString("N0"))</span></div>
+                <hr /><div class="summary-row total"><span>Total</span><span>&#8377;@Model.Cart.Total.ToString("N0")</span></div>
             </div>
         </div>
     </div>
