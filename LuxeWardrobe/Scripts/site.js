@@ -110,19 +110,6 @@ function updateText(selector, value) {
 }
 
 window.luxeImageFallback = function (img) {
-    var imageFile = (img.getAttribute("data-image-file") || "").toLowerCase();
-    var fallbacks = {
-        "t-1.avif": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=1000&q=85",
-        "t-2.avif": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=1000&q=85",
-        "t-3.avif": "https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?auto=format&fit=crop&w=1000&q=85"
-    };
-
-    if (img.getAttribute("data-fallback-applied") === "true") {
-        img.onerror = null;
-        img.src = img.getAttribute("data-placeholder") || "";
-        return;
-    }
-
-    img.setAttribute("data-fallback-applied", "true");
-    img.src = fallbacks[imageFile] || img.getAttribute("data-placeholder") || "";
+    img.onerror = null;
+    img.src = img.getAttribute("data-placeholder") || "/Content/images/products/placeholder.svg";
 };
