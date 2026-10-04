@@ -16,10 +16,9 @@ namespace LuxeWardrobe.Services
             var images = new List<string>();
             if (product == null) return images;
 
-            AddIfExists(images, product.ImageFileName);
+            var group = product.Id.ToString();
 
-            var group = GetImageGroup(product);
-            foreach (var suffix in new[] { "", "A", "B", "C", "D", "E" })
+            foreach (var suffix in new[] { "", "A", "B", "C", "D", "E", "F" })
             {
                 AddIfExists(images, group + suffix + ".avif");
                 AddIfExists(images, group + suffix + ".jpg");
@@ -34,17 +33,14 @@ namespace LuxeWardrobe.Services
             return images;
         }
 
-        private static string GetImageGroup(Product product)
+        public static string GetPrimaryImage(Product product)
         {
-            var fileName = Path.GetFileNameWithoutExtension(product.ImageFileName ?? "");
-            if (fileName.StartsWith("t-", StringComparison.OrdinalIgnoreCase))
-            {
-                var value = fileName.Substring(2);
-                if (!string.IsNullOrWhiteSpace(value)) return value;
-            }
+            return GetImages(product).FirstOrDefault() ?? ProductFolder + "placeholder.svg";
+        }
 
-            var leadingDigits = new string(fileName.TakeWhile(char.IsDigit).ToArray());
-            return string.IsNullOrWhiteSpace(leadingDigits) ? product.Id.ToString() : leadingDigits;
+        public static string GetPrimaryFileName(Product product)
+        {
+            return Path.GetFileName(GetPrimaryImage(product));
         }
 
         private static void AddIfExists(List<string> images, string fileName)
