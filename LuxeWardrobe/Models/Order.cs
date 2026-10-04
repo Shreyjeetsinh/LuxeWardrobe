@@ -14,6 +14,8 @@ namespace LuxeWardrobe.Models
 
         public int Id { get; set; }
 
+        public int? CustomerId { get; set; }
+
         [Required, StringLength(30)]
         [Index(IsUnique = true)]
         public string OrderNumber { get; set; }
