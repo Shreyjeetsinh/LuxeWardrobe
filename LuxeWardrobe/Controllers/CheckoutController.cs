@@ -136,7 +136,7 @@ namespace LuxeWardrobe.Controllers
 
         public ActionResult Success()
         {
-            var id = TempData["OrderId"] as int?;
+            int? id = TempData["OrderId"] == null ? (int?)null : Convert.ToInt32(TempData["OrderId"]);
             if (!id.HasValue) return RedirectToAction("Index", "Home");
 
             var order = _db.Orders.Include(x => x.Items).FirstOrDefault(x => x.Id == id.Value);
