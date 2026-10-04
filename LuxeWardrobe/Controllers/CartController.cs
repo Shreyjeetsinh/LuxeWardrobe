@@ -26,20 +26,45 @@ namespace LuxeWardrobe.Controllers
 
             if (product == null || inventory == null)
             {
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = false, message = "Please choose an available size." });
+
                 TempData["Error"] = "Please choose a valid product and size.";
                 return RedirectToAction("Index", "Home");
             }
 
             var current = SessionCartService.GetItems(Session).FirstOrDefault(x => x.ProductId == productId && x.Size == size);
-            var requestedTotal = (current == null ? 0 : current.Quantity) + quantity;
+            var currentQuantity = current == null ? 0 : current.Quantity;
+            var requestedTotal = currentQuantity + quantity;
 
             if (inventory.StockQuantity < requestedTotal)
             {
-                TempData["Error"] = "Only " + inventory.StockQuantity + " item(s) are available in size " + size + ".";
+                var message = inventory.StockQuantity <= currentQuantity
+                    ? "You already have all available stock for size " + size + " in your bag."
+                    : "Only " + inventory.StockQuantity + " item(s) are available in size " + size + ".";
+
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = false, message });
+
+                TempData["Error"] = message;
                 return SafeRedirect(returnUrl, productId, product.Slug);
             }
 
             SessionCartService.Add(Session, productId, size, quantity);
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = "Added to your bag.",
+                    productName = product.Name,
+                    size,
+                    price = product.Price.ToString("N0"),
+                    cartCount = SessionCartService.Count(Session),
+                    remainingStock = Math.Max(0, inventory.StockQuantity - requestedTotal)
+                });
+            }
 
             TempData["CartToastName"] = product.Name;
             TempData["CartToastSize"] = size;
