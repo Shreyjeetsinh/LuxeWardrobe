@@ -1,0 +1,15 @@
+@model LuxeWardrobe.ViewModels.OrderConfirmationViewModel
+@{
+    ViewBag.Title = "Order confirmed";
+}
+<div class="container py-6">
+    <div class="success-panel mx-auto text-center">
+        <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+        <div class="eyebrow mt-4">ORDER CONFIRMED</div>
+        <h1 class="display-5">Thank you, @Model.Order.CustomerName.</h1>
+        <p class="lead text-secondary">Your order has been saved successfully.</p>
+        <div class="order-number my-4"><span>Order number</span><strong>@Model.Order.OrderNumber</strong></div>
+        <p class="text-secondary">Keep this number with the email <strong>@Model.Order.Email</strong> to track the order later.</p>
+        <div class="d-flex justify-content-center flex-wrap gap-2 mt-4"><a href="@Url.Action("Track", "Order")" class="btn btn-dark rounded-pill px-4">Track order</a><a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark rounded-pill px-4">Continue shopping</a></div>
+    </div>
+</div>

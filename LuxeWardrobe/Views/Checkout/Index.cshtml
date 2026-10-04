@@ -1,0 +1,41 @@
+@model LuxeWardrobe.ViewModels.CheckoutViewModel
+@{
+    ViewBag.Title = "Checkout";
+}
+<div class="container py-5">
+    <div class="eyebrow">SECURE CHECKOUT</div><h1 class="display-6 mb-5">Delivery details</h1>
+    <div class="row g-5">
+        <div class="col-lg-7">
+            @using (Html.BeginForm("Index", "Checkout", FormMethod.Post, new { @class = "checkout-form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                <div class="row g-3">
+                    <div class="col-12"><label class="form-label">Full name</label>@Html.TextBoxFor(x => x.CustomerName, new { @class = "form-control", autocomplete = "name" })@Html.ValidationMessageFor(x => x.CustomerName, "", new { @class = "text-danger small" })</div>
+                    <div class="col-md-6"><label class="form-label">Email</label>@Html.TextBoxFor(x => x.Email, new { @class = "form-control", type = "email", autocomplete = "email" })@Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger small" })</div>
+                    <div class="col-md-6"><label class="form-label">Phone</label>@Html.TextBoxFor(x => x.Phone, new { @class = "form-control", autocomplete = "tel" })@Html.ValidationMessageFor(x => x.Phone, "", new { @class = "text-danger small" })</div>
+                    <div class="col-12"><label class="form-label">Address</label>@Html.TextBoxFor(x => x.AddressLine1, new { @class = "form-control", autocomplete = "street-address" })@Html.ValidationMessageFor(x => x.AddressLine1, "", new { @class = "text-danger small" })</div>
+                    <div class="col-12"><label class="form-label">Apartment / landmark</label>@Html.TextBoxFor(x => x.AddressLine2, new { @class = "form-control" })</div>
+                    <div class="col-md-5"><label class="form-label">City</label>@Html.TextBoxFor(x => x.City, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.City, "", new { @class = "text-danger small" })</div>
+                    <div class="col-md-4"><label class="form-label">State</label>@Html.TextBoxFor(x => x.State, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.State, "", new { @class = "text-danger small" })</div>
+                    <div class="col-md-3"><label class="form-label">PIN code</label>@Html.TextBoxFor(x => x.PostalCode, new { @class = "form-control", inputmode = "numeric", maxlength = "6" })@Html.ValidationMessageFor(x => x.PostalCode, "", new { @class = "text-danger small" })</div>
+                </div>
+                <div class="payment-note mt-4"><i class="bi bi-cash-stack"></i><div><strong>Demo payment mode: Cash on Delivery</strong><div class="small text-secondary">No real payment gateway is connected in this converted version.</div></div></div>
+                <button class="btn btn-dark btn-lg rounded-pill px-5 mt-4">Place order · ₹@Model.Cart.Total.ToString("N0")</button>
+            }
+        </div>
+        <div class="col-lg-4 offset-lg-1">
+            <div class="summary-card">
+                <h2 class="h5 mb-3">Your order</h2>
+                @foreach (var line in Model.Cart.Lines)
+                {
+                    <div class="d-flex justify-content-between gap-3 py-2 border-bottom small"><span>@line.ProductName × @line.Quantity <span class="text-secondary">(@line.Size)</span></span><strong>₹@line.LineTotal.ToString("N0")</strong></div>
+                }
+                <div class="summary-row mt-3"><span>Subtotal</span><span>₹@Model.Cart.Subtotal.ToString("N0")</span></div>
+                <div class="summary-row"><span>Discount</span><span>-₹@Model.Cart.Discount.ToString("N0")</span></div>
+                <div class="summary-row"><span>Delivery</span><span>@(Model.Cart.DeliveryFee == 0 ? "Free" : "₹" + Model.Cart.DeliveryFee.ToString("N0"))</span></div>
+                <hr /><div class="summary-row total"><span>Total</span><span>₹@Model.Cart.Total.ToString("N0")</span></div>
+            </div>
+        </div>
+    </div>
+</div>

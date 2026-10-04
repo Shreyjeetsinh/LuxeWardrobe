@@ -1,0 +1,40 @@
+@model LuxeWardrobe.ViewModels.TrackOrderViewModel
+@{
+    ViewBag.Title = "Track order";
+}
+<div class="container py-5">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <div class="eyebrow">ORDER LOOKUP</div><h1 class="display-6 mb-4">Track your order</h1>
+        @using (Html.BeginForm("Track", "Order", FormMethod.Post, new { @class = "filter-panel row g-3" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="col-md-5"><label class="form-label">Order number</label>@Html.TextBoxFor(x => x.OrderNumber, new { @class = "form-control", placeholder = "LW..." })@Html.ValidationMessageFor(x => x.OrderNumber, "", new { @class = "text-danger small" })</div>
+            <div class="col-md-5"><label class="form-label">Email</label>@Html.TextBoxFor(x => x.Email, new { @class = "form-control", type = "email" })@Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger small" })</div>
+            <div class="col-md-2 d-grid align-self-end"><button class="btn btn-dark">Find</button></div>
+        }
+
+        @if (Model.SearchPerformed && Model.Order == null)
+        {
+            <div class="alert alert-warning mt-4">No order matched that order number and email.</div>
+        }
+        @if (Model.Order != null)
+        {
+            <div class="summary-card mt-4">
+                <div class="d-flex justify-content-between flex-wrap gap-3"><div><div class="small text-secondary">@Model.Order.OrderNumber</div><h2 class="h4 mb-0">@Model.Order.Status</h2></div><strong class="h4">₹@Model.Order.Total.ToString("N0")</strong></div>
+                <div class="status-track my-4">
+                    @foreach (var status in new[] { "Placed", "Processing", "Shipped", "Delivered" })
+                    {
+                        var orderRank = Array.IndexOf(new[] { "Placed", "Processing", "Shipped", "Delivered" }, Model.Order.Status);
+                        var rank = Array.IndexOf(new[] { "Placed", "Processing", "Shipped", "Delivered" }, status);
+                        <div class="status-step @(orderRank >= rank ? "active" : "")"><span></span><small>@status</small></div>
+                    }
+                </div>
+                @if (Model.Order.Status == "Cancelled") { <div class="alert alert-danger">This order was cancelled.</div> }
+                @foreach (var item in Model.Order.Items)
+                {
+                    <div class="d-flex justify-content-between border-top py-2 small"><span>@item.ProductName · @item.Size × @item.Quantity</span><span>₹@((item.UnitPrice * item.Quantity).ToString("N0"))</span></div>
+                }
+            </div>
+        }
+    </div></div>
+</div>

@@ -1,0 +1,18 @@
+@model LuxeWardrobe.ViewModels.AdminLoginViewModel
+@{
+    ViewBag.Title = "Admin login";
+}
+<div class="container py-6"><div class="row justify-content-center"><div class="col-md-6 col-lg-4">
+    <div class="summary-card">
+        <div class="eyebrow">LUXEWARDROBE ADMIN</div><h1 class="h2 mb-4">Sign in</h1>
+        @using (Html.BeginForm("Login", "Admin", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+            <div class="mb-3"><label class="form-label">Username</label>@Html.TextBoxFor(x => x.Username, new { @class = "form-control", autocomplete = "username" })</div>
+            <div class="mb-4"><label class="form-label">Password</label>@Html.PasswordFor(x => x.Password, new { @class = "form-control", autocomplete = "current-password" })</div>
+            <button class="btn btn-dark w-100 rounded-pill">Sign in</button>
+        }
+        <div class="small text-secondary mt-4">Local demo login: <code>admin</code> / <code>ChangeMe123!</code>. Change it before deployment.</div>
+    </div>
+</div></div></div>

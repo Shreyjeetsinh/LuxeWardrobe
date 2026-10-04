@@ -1,0 +1,1 @@
+<%@ Application Codebehind="Global.asax.cs" Inherits="LuxeWardrobe.MvcApplication" Language="C#" %>

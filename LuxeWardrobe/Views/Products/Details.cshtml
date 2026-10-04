@@ -1,0 +1,52 @@
+@model LuxeWardrobe.ViewModels.ProductDetailsViewModel
+@{
+    ViewBag.Title = Model.Product.Name;
+    var available = Model.Product.Sizes.Where(x => x.StockQuantity > 0).OrderBy(x => x.Id).ToList();
+}
+<div class="container py-5">
+    <div class="row g-5 align-items-start">
+        <div class="col-lg-6">
+            <div class="detail-image-wrap"><img src="@Url.Content("~/Content/images/products/" + Model.Product.ImageFileName)" alt="@Model.Product.Name" class="detail-image" /></div>
+        </div>
+        <div class="col-lg-5 offset-lg-1">
+            <div class="eyebrow mb-2">@Model.Product.Category</div>
+            <h1 class="display-5 fw-semibold">@Model.Product.Name</h1>
+            <p class="h3 mt-3">₹@Model.Product.Price.ToString("N0")</p>
+            <p class="text-secondary">MRP inclusive of all taxes</p>
+            <hr class="my-4" />
+            <p>@Model.Product.Description</p>
+            <p><strong>Color</strong><br /><span class="text-secondary">@Model.Product.Color</span></p>
+
+            @if (available.Any())
+            {
+                using (Html.BeginForm("Add", "Cart", FormMethod.Post, new { @class = "mt-4" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("productId", Model.Product.Id)
+                    @Html.Hidden("quantity", 1)
+                    @Html.Hidden("returnUrl", Request.RawUrl)
+                    <label class="form-label fw-semibold">Select size</label>
+                    <div class="size-grid mb-4">
+                        @foreach (var item in Model.Product.Sizes.OrderBy(x => x.Id))
+                        {
+                            var disabled = item.StockQuantity <= 0;
+                            <label class="size-option @(disabled ? "disabled" : "")">
+                                <input type="radio" name="size" value="@item.Size" required @(disabled ? "disabled" : "") />
+                                <span>@item.Size</span>
+                            </label>
+                        }
+                    </div>
+                    <button class="btn btn-dark btn-lg w-100 rounded-pill"><i class="bi bi-bag-plus me-2"></i>Add to bag</button>
+                }
+            }
+            else
+            {
+                <button class="btn btn-secondary btn-lg w-100 rounded-pill" disabled>Out of stock</button>
+            }
+            <div class="benefits mt-4">
+                <div><i class="bi bi-truck"></i><span><strong>Free delivery</strong><small>On orders above ₹2,000</small></span></div>
+                <div><i class="bi bi-shield-check"></i><span><strong>Server-validated checkout</strong><small>Price and stock are rechecked</small></span></div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+@model IEnumerable<LuxeWardrobe.Models.Product>
+@{
+    ViewBag.Title = "Products";
+}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-end mb-4"><div><div class="eyebrow">ADMIN</div><h1 class="display-6 mb-0">Products</h1></div><div class="d-flex gap-2"><a class="btn btn-outline-dark rounded-pill" href="@Url.Action("Dashboard", "Admin")">Dashboard</a><a class="btn btn-dark rounded-pill" href="@Url.Action("Create")">Add product</a></div></div>
+    <div class="table-responsive bg-white border rounded-4"><table class="table align-middle mb-0"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Visible</th><th></th></tr></thead><tbody>
+    @foreach (var product in Model)
+    {
+        <tr><td><div class="d-flex align-items-center gap-3"><img src="@Url.Content("~/Content/images/products/" + product.ImageFileName)" class="admin-thumb" /><div><strong>@product.Name</strong><div class="small text-secondary">@product.Color</div></div></div></td><td>@product.Category</td><td>₹@product.Price.ToString("N0")</td><td>@product.TotalStock</td><td>@(product.IsActive ? "Yes" : "No")</td><td><div class="d-flex gap-2"><a class="btn btn-sm btn-outline-dark" href="@Url.Action("Edit", new { id = product.Id })">Edit</a>@if(product.IsActive){using(Html.BeginForm("Delete", "AdminProducts", FormMethod.Post)){@Html.AntiForgeryToken()@Html.Hidden("id", product.Id)<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hide this product?')">Hide</button>}}</div></td></tr>
+    }
+    </tbody></table></div>
+</div>

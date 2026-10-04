@@ -1,99 +1,187 @@
-# 👗 LuxeWardrobe
+# LuxeWardrobe
 
-A sleek front-end e-commerce storefront for fashion apparel — browse products, pick colors and sizes, add items to your bag, and check out. Built with plain HTML, CSS, and JavaScript.
+A modern fashion e-commerce application rebuilt from a static HTML/JavaScript storefront into a full **ASP.NET MVC 5** application using **C#, .NET Framework 4.8, Entity Framework 6, Razor, Bootstrap 5, and SQL Server LocalDB**.
 
-**🔗 Live Demo:** [shreyjeetsinh.github.io/LuxeWardrobe](https://shreyjeetsinh.github.io/LuxeWardrobe/)
-
----
-
-## 📋 Table of Contents
-
-- [About the Project](#about-the-project)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-- [Future Enhancements](#future-enhancements)
-- [Author](#author)
-
----
-
-## About the Project
-
-LuxeWardrobe is a client-side shopping storefront demo. It displays a catalog of clothing products with pricing, color, and size options, and lets users add items to a shopping bag that carries over to a dedicated cart page with a live price breakdown.
+The project demonstrates a complete MVC workflow with server-side cart handling, product and stock management, checkout, persisted orders, order tracking, and an admin dashboard.
 
 ## Features
 
-- 🛍️ Product catalog with images, price, and color variants
-- 📏 Size selector (S, M, L, XL, XXL)
-- 🧺 Add-to-cart functionality with a live cart item counter in the nav
-- 💰 Cart page with order value, delivery fee, and total calculation
-- ✅ "Proceed to Checkout" flow
-- 📱 Responsive layout
+### Customer storefront
+
+- Responsive fashion storefront
+- Product catalog backed by SQL Server
+- Product details page
+- Search products by name or description
+- Filter by category and size
+- Product sorting
+- Per-size stock availability
+- Server-side session cart
+- Add, update, and remove cart items
+- Promo-code support
+- Delivery-charge calculation
+- Checkout validation
+- Server-side price and stock revalidation
+- Order creation with transaction handling
+- Automatic stock deduction
+- Order confirmation
+- Order tracking using order number and customer email
+
+### Admin area
+
+- Admin authentication
+- Dashboard
+- Add and edit products
+- Show/hide products
+- Manage stock for S, M, L, XL, and XXL
+- View customer orders
+- Update order status through:
+  - Placed
+  - Processing
+  - Shipped
+  - Delivered
 
 ## Tech Stack
 
-| Layer | Technology |
+| Area | Technology |
 |---|---|
-| Structure | HTML5 |
-| Styling | CSS3 |
-| Logic | JavaScript (vanilla) |
-| Hosting | GitHub Pages |
+| Framework | ASP.NET MVC 5 |
+| Runtime | .NET Framework 4.8 |
+| Language | C# |
+| Views | Razor |
+| ORM | Entity Framework 6 |
+| Database | SQL Server LocalDB |
+| Frontend | HTML5, CSS3, Bootstrap 5, JavaScript |
+| Server | IIS Express / IIS |
+| IDE | Visual Studio 2022 |
 
 ## Project Structure
 
+```text
+LuxeWardrobeMvc/
+├── LuxeWardrobe.sln
+├── .gitignore
+├── README.md
+├── CONVERSION_NOTES.md
+│
+├── LuxeWardrobe/
+│   ├── App_Start/       # MVC routing and application configuration
+│   ├── Content/         # CSS and product images
+│   ├── Controllers/     # Store, cart, checkout, admin controllers
+│   ├── Data/            # EF database context and initialization
+│   ├── Filters/         # MVC filters
+│   ├── Models/          # Database/domain models
+│   ├── Scripts/         # JavaScript
+│   ├── Services/        # Application/business services
+│   ├── ViewModels/      # Strongly typed MVC view models
+│   ├── Views/           # Razor views
+│   ├── Global.asax
+│   ├── Web.config
+│   ├── packages.config
+│   └── LuxeWardrobe.csproj
+│
+└── _OriginalStaticSource/  # Original project retained for comparison
 ```
-LuxeWardrobe/
-├── index.html      # Home page — product listing
-├── cart.html        # Shopping bag / cart page
-├── css/              # Stylesheets
-├── js/                # Cart logic, product data, interactivity
-└── assets/           # Product images
-```
-
-*(Adjust the tree above to match your actual folder layout.)*
 
 ## Getting Started
 
 ### Prerequisites
 
-- A modern web browser
-- (Optional) [VS Code](https://code.visualstudio.com/) with the Live Server extension for local development
+Install:
 
-### Installation
+- Visual Studio 2022
+- **ASP.NET and web development** workload
+- .NET Framework 4.8 Developer Pack
+- SQL Server Express LocalDB
+
+### Run locally
+
+1. Clone the repository.
 
 ```bash
-# Clone the repository
-git clone https://github.com/shreyjeetsinh/LuxeWardrobe.git
-
-# Move into the project directory
-cd LuxeWardrobe
-
-# Open index.html directly in your browser, or serve it locally
+git clone <your-repository-url>
 ```
 
-## Usage
+2. Open:
 
-1. Browse the product catalog on the Home page.
-2. Select a color and size for a product.
-3. Click **Add to Cart** — the cart icon in the nav updates with the item count.
-4. Go to the **Cart** page to review items, delivery fee, and total.
-5. Click **Proceed to Checkout** to continue.
+```text
+LuxeWardrobe.sln
+```
+
+3. Restore NuGet packages.
+
+In Visual Studio, right-click the solution and select **Restore NuGet Packages** if restoration does not happen automatically.
+
+4. Make sure `LuxeWardrobe` is the startup project.
+
+5. Run the project using **IIS Express**.
+
+On first run, Entity Framework creates the local database and seeds the initial LuxeWardrobe products.
+
+## Database
+
+The default development connection string is configured in `LuxeWardrobe/Web.config`:
+
+```xml
+Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=LuxeWardrobeMvcDb;Integrated Security=True;MultipleActiveResultSets=True
+```
+
+For production, replace this with your SQL Server or Azure SQL connection string and keep credentials outside source control.
+
+## Demo Admin Login
+
+For local development:
+
+```text
+Username: admin
+Password: ChangeMe123!
+```
+
+> **Security:** Change the seeded admin credential before deploying the application publicly.
+
+## Promo Code
+
+A demo promotional code is included:
+
+```text
+LUXE10
+```
+
+It applies a 10% discount up to ₹500 when the qualifying subtotal is reached.
+
+## Security Improvements Over the Original App
+
+The original static application stored cart information entirely in browser `localStorage`. This MVC version moves critical operations to the server.
+
+- Product prices are read from the database
+- Stock is checked server-side
+- Checkout revalidates cart quantities and prices
+- Order creation runs inside a database transaction
+- POST actions use anti-forgery validation
+- Admin credentials are hashed instead of stored as plain text
+- Customer-side values are not trusted for totals
+
+## Original Project
+
+The original static source is retained under `_OriginalStaticSource` for comparison with the MVC implementation.
 
 ## Future Enhancements
 
-- 🔍 Product search and filtering (by size, color, category)
-- 👤 User authentication and order history
-- 💳 Real payment gateway integration
-- 🗄️ Backend/database to persist products and orders
-- ⭐ Product reviews and ratings
+Useful next additions could include:
+
+- ASP.NET Identity customer accounts
+- Wishlist
+- Product reviews and ratings
+- Razorpay/Stripe payment gateway
+- Email order confirmations
+- Product image upload from the admin area
+- Multiple product images
+- Coupons stored in the database
+- Sales/reporting dashboard
+- Azure SQL deployment
+- Azure App Service deployment
 
 ## Author
 
 **Shreyjeetsinh Dodiya**
-[LinkedIn](https://www.linkedin.com/in/shreyjeetsinh/) • [GitHub](https://github.com/shreyjeetsinh)
 
----
-
-*© 2025 LuxeWardrobe. All rights reserved.*
+.NET Developer focused on building practical web applications with C#, ASP.NET, SQL Server, and modern web technologies.

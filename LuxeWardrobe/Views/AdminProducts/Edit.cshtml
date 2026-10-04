@@ -1,0 +1,31 @@
+@model LuxeWardrobe.ViewModels.ProductEditViewModel
+@{
+    var isNew = Model.Id == 0;
+    ViewBag.Title = isNew ? "Add product" : "Edit product";
+    var action = isNew ? "Create" : "Edit";
+}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-9">
+    <div class="d-flex justify-content-between align-items-end mb-4"><div><div class="eyebrow">ADMIN / PRODUCT</div><h1 class="display-6 mb-0">@(isNew ? "Add product" : "Edit product")</h1></div><a href="@Url.Action("Index")" class="btn btn-outline-dark rounded-pill">Back</a></div>
+    @using (Html.BeginForm(action, "AdminProducts", FormMethod.Post, new { @class = "summary-card" }))
+    {
+        @Html.AntiForgeryToken() @Html.HiddenFor(x => x.Id)
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+        <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Name</label>@Html.TextBoxFor(x => x.Name, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.Name, "", new { @class = "text-danger small" })</div>
+            <div class="col-md-4"><label class="form-label">Price</label>@Html.TextBoxFor(x => x.Price, new { @class = "form-control", type = "number", step = "1", min = "1" })</div>
+            <div class="col-md-6"><label class="form-label">Slug</label>@Html.TextBoxFor(x => x.Slug, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.Slug, "", new { @class = "text-danger small" })</div>
+            <div class="col-md-3"><label class="form-label">Category</label>@Html.TextBoxFor(x => x.Category, new { @class = "form-control" })</div>
+            <div class="col-md-3"><label class="form-label">Color</label>@Html.TextBoxFor(x => x.Color, new { @class = "form-control" })</div>
+            <div class="col-12"><label class="form-label">Description</label>@Html.TextAreaFor(x => x.Description, 4, 30, new { @class = "form-control" })</div>
+            <div class="col-md-8"><label class="form-label">Image file name</label>@Html.TextBoxFor(x => x.ImageFileName, new { @class = "form-control" })<div class="form-text">Place image files in Content/images/products.</div></div>
+            <div class="col-md-4 d-flex align-items-end"><div class="form-check mb-2">@Html.CheckBoxFor(x => x.IsActive, new { @class = "form-check-input" })<label class="form-check-label" for="IsActive">Visible in storefront</label></div></div>
+            <div class="col-12"><hr /><h2 class="h5">Stock by size</h2></div>
+            <div class="col">@Html.LabelFor(x => x.StockS, "S", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockS, new { @class = "form-control", type = "number", min = "0" })</div>
+            <div class="col">@Html.LabelFor(x => x.StockM, "M", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockM, new { @class = "form-control", type = "number", min = "0" })</div>
+            <div class="col">@Html.LabelFor(x => x.StockL, "L", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockL, new { @class = "form-control", type = "number", min = "0" })</div>
+            <div class="col">@Html.LabelFor(x => x.StockXL, "XL", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockXL, new { @class = "form-control", type = "number", min = "0" })</div>
+            <div class="col">@Html.LabelFor(x => x.StockXXL, "XXL", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockXXL, new { @class = "form-control", type = "number", min = "0" })</div>
+        </div>
+        <button class="btn btn-dark rounded-pill px-5 mt-4">Save product</button>
+    }
+</div></div></div>

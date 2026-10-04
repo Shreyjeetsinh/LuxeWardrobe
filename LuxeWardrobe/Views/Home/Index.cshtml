@@ -1,0 +1,94 @@
+@model LuxeWardrobe.ViewModels.CatalogViewModel
+@{
+    ViewBag.Title = "Modern essentials";
+    var sizes = new[] { "S", "M", "L", "XL", "XXL" };
+}
+<section class="hero-section">
+    <div class="container py-5 py-lg-6">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <div class="eyebrow mb-3">NEW SEASON / EVERYDAY LUXURY</div>
+                <h1 class="display-3 fw-semibold lh-1 mb-3">Quiet style.<br />Strong presence.</h1>
+                <p class="lead text-secondary mb-4">A cleaner, database-backed version of LuxeWardrobe with real stock, checkout, orders and admin management.</p>
+                <a href="#catalog" class="btn btn-dark btn-lg rounded-pill px-4">Shop collection <i class="bi bi-arrow-down-right ms-1"></i></a>
+            </div>
+            <div class="col-lg-5">
+                <div class="hero-card">
+                    <div class="hero-number">03</div>
+                    <div><span class="text-secondary small">CURATED PIECES</span><h3 class="mb-0">Made to mix.<br />Easy to wear.</h3></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5" id="catalog">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+        <div><div class="eyebrow">COLLECTION</div><h2 class="display-6 mb-0">Shop all</h2></div>
+        <span class="text-secondary">@Model.Products.Count() product(s)</span>
+    </div>
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "filter-panel row g-2 align-items-end mb-5" }))
+    {
+        <div class="col-lg-4">
+            <label class="form-label small text-uppercase">Search</label>
+            <input class="form-control" name="q" value="@Model.Query" placeholder="Shirt, color, style..." />
+        </div>
+        <div class="col-sm-4 col-lg-2">
+            <label class="form-label small text-uppercase">Category</label>
+            <select class="form-select" name="category">
+                <option value="">All</option>
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category" @(Model.Category == category ? "selected" : "")>@category</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-4 col-lg-2">
+            <label class="form-label small text-uppercase">Size</label>
+            <select class="form-select" name="size">
+                <option value="">All</option>
+                @foreach (var size in sizes)
+                {
+                    <option value="@size" @(Model.Size == size ? "selected" : "")>@size</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-4 col-lg-2">
+            <label class="form-label small text-uppercase">Sort</label>
+            <select class="form-select" name="sort">
+                <option value="" @(string.IsNullOrEmpty(Model.Sort) ? "selected" : "")>Newest</option>
+                <option value="price-low" @(Model.Sort == "price-low" ? "selected" : "")>Price low-high</option>
+                <option value="price-high" @(Model.Sort == "price-high" ? "selected" : "")>Price high-low</option>
+                <option value="name" @(Model.Sort == "name" ? "selected" : "")>Name</option>
+            </select>
+        </div>
+        <div class="col-lg-2 d-grid"><button class="btn btn-dark">Apply</button></div>
+    }
+
+    @if (!Model.Products.Any())
+    {
+        <div class="empty-state"><i class="bi bi-search"></i><h3>No products found</h3><p>Try removing one of the filters.</p></div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col-sm-6 col-lg-4">
+                    <article class="product-card h-100">
+                        <a href="@Url.Action("Details", "Products", new { id = product.Id, slug = product.Slug })" class="product-image-wrap">
+                            <img src="@Url.Content("~/Content/images/products/" + product.ImageFileName)" alt="@product.Name" class="product-image" />
+                            @if (product.TotalStock <= 5) { <span class="stock-pill">Low stock</span> }
+                        </a>
+                        <div class="pt-3">
+                            <div class="d-flex justify-content-between gap-3"><h3 class="h5 mb-1">@product.Name</h3><strong>₹@product.Price.ToString("N0")</strong></div>
+                            <div class="text-secondary small mb-3">@product.Color · @product.Category</div>
+                            <a href="@Url.Action("Details", "Products", new { id = product.Id, slug = product.Slug })" class="btn btn-outline-dark w-100 rounded-pill">View product</a>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+</section>

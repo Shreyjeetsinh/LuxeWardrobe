@@ -1,0 +1,67 @@
+@model LuxeWardrobe.ViewModels.CartViewModel
+@{
+    ViewBag.Title = "Shopping bag";
+}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-end mb-4"><div><div class="eyebrow">YOUR SELECTION</div><h1 class="display-6 mb-0">Shopping bag</h1></div><a href="@Url.Action("Index", "Home")" class="link-dark">Continue shopping</a></div>
+
+    @if (Model.IsEmpty)
+    {
+        <div class="empty-state py-6"><i class="bi bi-bag"></i><h2>Your bag is empty</h2><p>Add something you love and it will appear here.</p><a class="btn btn-dark rounded-pill px-4" href="@Url.Action("Index", "Home")">Browse collection</a></div>
+    }
+    else
+    {
+        <div class="row g-5">
+            <div class="col-lg-8">
+                @foreach (var line in Model.Lines)
+                {
+                    <div class="cart-line py-4 border-bottom">
+                        <a href="@Url.Action("Details", "Products", new { id = line.ProductId, slug = line.Slug })"><img src="@Url.Content("~/Content/images/products/" + line.ImageFileName)" alt="@line.ProductName" /></a>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between gap-3"><div><h3 class="h5 mb-1">@line.ProductName</h3><div class="text-secondary small">@line.Color · Size @line.Size</div></div><strong>₹@line.LineTotal.ToString("N0")</strong></div>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                                @using (Html.BeginForm("Update", "Cart", FormMethod.Post, new { @class = "d-flex align-items-center gap-2" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("productId", line.ProductId)
+                                    @Html.Hidden("size", line.Size)
+                                    <input type="number" class="form-control form-control-sm qty-input" name="quantity" min="0" max="@Math.Min(10, line.AvailableStock)" value="@line.Quantity" />
+                                    <button class="btn btn-sm btn-outline-dark">Update</button>
+                                }
+                                @using (Html.BeginForm("Remove", "Cart", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("productId", line.ProductId)
+                                    @Html.Hidden("size", line.Size)
+                                    <button class="btn btn-sm btn-link text-danger text-decoration-none"><i class="bi bi-trash me-1"></i>Remove</button>
+                                }
+                            </div>
+                            @if (line.AvailableStock <= 5) { <div class="small text-warning-emphasis mt-2">Only @line.AvailableStock left in this size.</div> }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-4">
+                <div class="summary-card sticky-lg-top">
+                    <h2 class="h4 mb-4">Order summary</h2>
+                    <div class="summary-row"><span>Subtotal</span><span>₹@Model.Subtotal.ToString("N0")</span></div>
+                    <div class="summary-row"><span>Discount</span><span>-₹@Model.Discount.ToString("N0")</span></div>
+                    <div class="summary-row"><span>Delivery</span><span>@(Model.DeliveryFee == 0 ? "Free" : "₹" + Model.DeliveryFee.ToString("N0"))</span></div>
+                    <hr />
+                    <div class="summary-row total"><span>Total</span><span>₹@Model.Total.ToString("N0")</span></div>
+
+                    @using (Html.BeginForm("ApplyPromo", "Cart", FormMethod.Post, new { @class = "mt-4" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <label class="form-label small text-uppercase">Promo code</label>
+                        <div class="input-group"><input class="form-control" name="promoCode" value="@Model.PromoCode" placeholder="Try LUXE10" /><button class="btn btn-outline-dark">Apply</button></div>
+                        if (!string.IsNullOrWhiteSpace(Model.PromoMessage)) { <div class="small mt-2 text-secondary">@Model.PromoMessage</div> }
+                    }
+
+                    <a href="@Url.Action("Index", "Checkout")" class="btn btn-dark btn-lg w-100 rounded-pill mt-4">Checkout</a>
+                    <div class="small text-secondary mt-3"><i class="bi bi-lock me-1"></i>Prices and inventory are verified again before the order is saved.</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

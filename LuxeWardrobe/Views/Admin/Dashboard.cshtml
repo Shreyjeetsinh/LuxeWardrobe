@@ -1,0 +1,14 @@
+@model LuxeWardrobe.ViewModels.AdminDashboardViewModel
+@{
+    ViewBag.Title = "Admin dashboard";
+}
+<div class="container py-5">
+    <div class="admin-head"><div><div class="eyebrow">ADMIN</div><h1 class="display-6">Dashboard</h1></div>@using (Html.BeginForm("Logout", "Admin", FormMethod.Post)){@Html.AntiForgeryToken()<button class="btn btn-outline-dark rounded-pill">Sign out</button>}</div>
+    <div class="row g-3 mt-2">
+        <div class="col-sm-6 col-lg-3"><div class="metric-card"><span>Active products</span><strong>@Model.ActiveProducts</strong></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="metric-card"><span>Total orders</span><strong>@Model.TotalOrders</strong></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="metric-card"><span>Open orders</span><strong>@Model.PendingOrders</strong></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="metric-card"><span>Revenue</span><strong>₹@Model.Revenue.ToString("N0")</strong></div></div>
+    </div>
+    <div class="row g-3 mt-3"><div class="col-md-6"><a class="admin-link-card" href="@Url.Action("Index", "AdminProducts")"><i class="bi bi-box-seam"></i><span><strong>Manage products</strong><small>Pricing, visibility and stock by size</small></span><i class="bi bi-arrow-right"></i></a></div><div class="col-md-6"><a class="admin-link-card" href="@Url.Action("Orders", "Admin")"><i class="bi bi-receipt"></i><span><strong>Manage orders</strong><small>Review orders and update fulfillment status</small></span><i class="bi bi-arrow-right"></i></a></div></div>
+</div>
