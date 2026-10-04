@@ -15,6 +15,9 @@ namespace LuxeWardrobe.Models
         [Index(IsUnique = true)]
         public string Email { get; set; }
 
+        [Phone, StringLength(20)]
+        public string Phone { get; set; }
+
         [Required, StringLength(256)]
         public string PasswordHash { get; set; }
 
