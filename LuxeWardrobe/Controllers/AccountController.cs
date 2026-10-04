@@ -147,7 +147,7 @@ namespace LuxeWardrobe.Controllers
             var email = model.Email.Trim().ToLowerInvariant();
             if (_db.CustomerAccounts.Any(x => x.Id != customer.Id && x.Email == email))
             {
-                ModelState.AddModelError("Email", "Another account already uses this email.");
+                ModelState.AddModelError("Profile.Email", "Another account already uses this email.");
                 var orders = _db.Orders
                     .Include(x => x.Items)
                     .Where(x => x.CustomerId == customer.Id || (x.CustomerId == null && x.Email == customer.Email))
