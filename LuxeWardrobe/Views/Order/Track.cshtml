@@ -15,12 +15,12 @@
 
         @if (Model.SearchPerformed && Model.Order == null)
         {
-            <div class="alert alert-warning mt-4">No order matched that order number and email.</div>
+            <div class="alert alert-warning alert-dismissible fade show mt-4 auto-dismiss" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>No order matched that order number and email.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
         }
         @if (Model.Order != null)
         {
             <div class="summary-card mt-4">
-                <div class="d-flex justify-content-between flex-wrap gap-3"><div><div class="small text-secondary">@Model.Order.OrderNumber</div><h2 class="h4 mb-0">@Model.Order.Status</h2></div><strong class="h4">₹@Model.Order.Total.ToString("N0")</strong></div>
+                <div class="d-flex justify-content-between flex-wrap gap-3"><div><div class="small text-secondary">@Model.Order.OrderNumber</div><h2 class="h4 mb-0">@Model.Order.Status</h2></div><strong class="h4">&#8377;@Model.Order.Total.ToString("N0")</strong></div>
                 <div class="status-track my-4">
                     @foreach (var status in new[] { "Placed", "Processing", "Shipped", "Delivered" })
                     {
@@ -29,10 +29,10 @@
                         <div class="status-step @(orderRank >= rank ? "active" : "")"><span></span><small>@status</small></div>
                     }
                 </div>
-                @if (Model.Order.Status == "Cancelled") { <div class="alert alert-danger">This order was cancelled.</div> }
+                @if (Model.Order.Status == "Cancelled") { <div class="alert alert-danger alert-dismissible fade show" role="alert">This order was cancelled.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div> }
                 @foreach (var item in Model.Order.Items)
                 {
-                    <div class="d-flex justify-content-between border-top py-2 small"><span>@item.ProductName · @item.Size × @item.Quantity</span><span>₹@((item.UnitPrice * item.Quantity).ToString("N0"))</span></div>
+                    <div class="d-flex justify-content-between border-top py-2 small"><span>@item.ProductName &middot; @item.Size &times; @item.Quantity</span><span>&#8377;@((item.UnitPrice * item.Quantity).ToString("N0"))</span></div>
                 }
             </div>
         }
