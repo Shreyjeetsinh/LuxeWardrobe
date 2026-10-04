@@ -25,12 +25,17 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!mainImage) return;
 
             mainImage.src = button.getAttribute("data-gallery-image");
-            mainImage.removeAttribute("data-fallback-applied");
-
             document.querySelectorAll("[data-gallery-image]").forEach(function (item) {
                 item.classList.remove("active");
             });
             button.classList.add("active");
+        });
+    });
+
+    document.querySelectorAll("[data-add-to-cart]").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            addToCart(form);
         });
     });
 
@@ -59,14 +64,115 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-function updateCartQuantity(form) {
-    form.setAttribute("data-busy", "true");
+function addToCart(form) {
+    if (form.getAttribute("data-busy") === "true") return;
 
-    var data = new FormData(form);
+    var selectedSize = form.querySelector('input[name="size"]:checked');
+    var status = form.querySelector("[data-add-cart-status]");
+    var submitButton = form.querySelector('button[type="submit"]');
+
+    if (!selectedSize) {
+        setAddCartStatus(status, "Please select a size.", true);
+        return;
+    }
+
+    form.setAttribute("data-busy", "true");
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.setAttribute("data-original-text", submitButton.innerHTML);
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding...';
+    }
 
     fetch(form.action, {
         method: "POST",
-        body: data,
+        body: new FormData(form),
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(function (response) {
+        if (!response.ok) throw new Error("Could not add this item.");
+        return response.json();
+    })
+    .then(function (result) {
+        if (!result.success) {
+            setAddCartStatus(status, result.message || "Could not add this item.", true);
+            return;
+        }
+
+        updateText("[data-cart-count]", result.cartCount);
+        setAddCartStatus(status, "Added to bag. " + result.remainingStock + " left after your selection.", false);
+        updateSelectedSizeStock(selectedSize, result.remainingStock);
+        showCartToast(result);
+    })
+    .catch(function () {
+        setAddCartStatus(status, "Something went wrong. Please try again.", true);
+    })
+    .finally(function () {
+        form.removeAttribute("data-busy");
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = submitButton.getAttribute("data-original-text") || "Add to bag";
+        }
+    });
+}
+
+function updateSelectedSizeStock(selectedInput, remainingStock) {
+    if (!selectedInput) return;
+    var option = selectedInput.closest("[data-size-option]");
+    if (!option) return;
+
+    var stockText = option.querySelector("[data-stock-count]");
+    if (stockText) {
+        stockText.textContent = remainingStock <= 0 ? "In bag / no more left" : remainingStock + " left after bag";
+    }
+}
+
+function setAddCartStatus(element, message, isError) {
+    if (!element) return;
+    element.classList.remove("text-danger", "text-success");
+    element.classList.add(isError ? "text-danger" : "text-success");
+    element.textContent = message;
+}
+
+function showCartToast(result) {
+    var host = document.getElementById("cartToastHost");
+    if (!host) return;
+
+    var toast = document.createElement("div");
+    toast.className = "toast show border-0 shadow-lg luxe-cart-toast";
+    toast.setAttribute("role", "status");
+    toast.innerHTML =
+        '<div class="toast-header">' +
+            '<i class="bi bi-check-circle-fill text-success me-2"></i>' +
+            '<strong class="me-auto">Added to your bag</strong>' +
+            '<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>' +
+        '</div>' +
+        '<div class="toast-body">' +
+            '<div class="fw-semibold"></div>' +
+            '<div class="small text-secondary cart-toast-meta"></div>' +
+            '<a class="small fw-semibold d-inline-block mt-2" href="/Cart">View bag</a>' +
+        '</div>';
+
+    toast.querySelector(".fw-semibold").textContent = result.productName;
+    toast.querySelector(".cart-toast-meta").textContent = "Size " + result.size + " · ₹" + result.price;
+    host.appendChild(toast);
+
+    if (window.bootstrap && bootstrap.Toast) {
+        var instance = bootstrap.Toast.getOrCreateInstance(toast, { delay: 3500 });
+        toast.addEventListener("hidden.bs.toast", function () { toast.remove(); });
+        instance.show();
+    } else {
+        window.setTimeout(function () { toast.remove(); }, 3500);
+    }
+}
+
+function updateCartQuantity(form) {
+    form.setAttribute("data-busy", "true");
+
+    fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
         headers: {
             "X-Requested-With": "XMLHttpRequest"
         }
@@ -85,7 +191,7 @@ function updateCartQuantity(form) {
             var lineTotal = line.querySelector("[data-line-total]");
 
             if (quantityInput) quantityInput.value = result.quantity;
-            if (lineTotal) lineTotal.innerHTML = "&#8377;" + result.lineTotal;
+            if (lineTotal) lineTotal.textContent = "₹" + result.lineTotal;
         }
 
         updateText("[data-cart-subtotal]", "₹" + result.subtotal);
