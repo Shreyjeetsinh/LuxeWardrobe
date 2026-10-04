@@ -35,7 +35,7 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end account-dropdown shadow-sm border-0">
                                 <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")"><i class="bi bi-person me-2"></i>My account</a></li>
-                                <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")#orders"><i class="bi bi-box-seam me-2"></i>My orders</a></li>
+                                <li><a class="dropdown-item" href="@(Url.Action("Profile", "Account") + "#orders")"><i class="bi bi-box-seam me-2"></i>My orders</a></li>
                                 <li><hr class="dropdown-divider" /></li>
                                 <li class="px-2">
                                     @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
