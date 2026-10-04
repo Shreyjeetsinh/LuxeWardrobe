@@ -13,10 +13,10 @@
             <h1 class="display-6 mb-1">Products</h1>
             <p class="text-secondary mb-0">Manage storefront products, stock, pricing and images from one place.</p>
         </div>
-        <a class="btn btn-dark rounded-pill px-4" href="@Url.Action("Create")"><i class="bi bi-plus-lg me-1"></i>Add product</a>
+        <a class="btn btn-dark rounded-pill px-4 align-self-start align-self-md-auto" href="@Url.Action("Create")"><i class="bi bi-plus-lg me-1"></i>Add product</a>
     </div>
 
-    <div class="table-responsive bg-white border rounded-4 admin-products-table">
+    <div class="table-responsive bg-white border rounded-4 admin-products-table d-none d-md-block">
         <table class="table align-middle mb-0">
             <thead>
                 <tr>
@@ -42,7 +42,7 @@
                             {
                                 <img src="@Url.Content("~/Content/images/products/placeholder.svg")" class="admin-thumb" alt="@product.Name" />
                             }
-                            <div>
+                            <div class="min-w-0">
                                 <strong>@product.Name</strong>
                                 <div class="small text-secondary">@product.Color</div>
                             </div>
@@ -80,5 +80,58 @@
             }
             </tbody>
         </table>
+    </div>
+
+    <div class="admin-mobile-list d-md-none">
+        @foreach (var product in Model)
+        {
+            <article class="admin-mobile-card">
+                <div class="admin-mobile-card-head">
+                    @if (primaryImageIds.ContainsKey(product.Id))
+                    {
+                        <img src="@Url.Action("Image", "Products", new { id = primaryImageIds[product.Id] })" class="admin-thumb" alt="@product.Name" />
+                    }
+                    else
+                    {
+                        <img src="@Url.Content("~/Content/images/products/placeholder.svg")" class="admin-thumb" alt="@product.Name" />
+                    }
+                    <div class="admin-mobile-card-title">
+                        <strong>@product.Name</strong>
+                        <div class="small text-secondary">@product.Color</div>
+                        <div class="mt-1">
+                            @if (product.IsActive)
+                            {
+                                <span class="badge text-bg-success">Live</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Hidden</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-mobile-meta">
+                    <span><small>Category</small><strong>@product.Category</strong></span>
+                    <span><small>Price</small><strong>&#8377;@product.Price.ToString("N0")</strong></span>
+                    <span><small>Stock</small><strong>@product.TotalStock</strong></span>
+                    <span><small>ID</small><strong>#@product.Id</strong></span>
+                </div>
+
+                <div class="admin-mobile-actions">
+                    <a class="btn btn-sm btn-outline-secondary" target="_blank" href="@Url.Action("Details", "Products", new { id = product.Id })">Preview</a>
+                    <a class="btn btn-sm btn-outline-dark" href="@Url.Action("Edit", new { id = product.Id })">Edit</a>
+                    @if (product.IsActive)
+                    {
+                        using (Html.BeginForm("Delete", "AdminProducts", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("id", product.Id)
+                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hide this product from the storefront?')">Hide</button>
+                        }
+                    }
+                </div>
+            </article>
+        }
     </div>
 </div>
