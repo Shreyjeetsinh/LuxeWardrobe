@@ -126,6 +126,12 @@ function updateSelectedSizeStock(selectedInput, remainingStock) {
     if (stockText) {
         stockText.textContent = remainingStock <= 0 ? "In bag / no more left" : remainingStock + " left after bag";
     }
+
+    if (remainingStock <= 0) {
+        selectedInput.checked = false;
+        selectedInput.disabled = true;
+        option.classList.add("disabled");
+    }
 }
 
 function setAddCartStatus(element, message, isError) {
