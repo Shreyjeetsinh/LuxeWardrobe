@@ -1,0 +1,73 @@
+@using System.Linq
+@model LuxeWardrobe.Models.Order
+@{
+    ViewBag.Title = "Order " + Model.OrderNumber;
+    var statuses = new[] { "Placed", "Processing", "Shipped", "Delivered" };
+    var orderRank = Array.IndexOf(statuses, Model.Status);
+}
+<div class="container py-4 py-lg-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+        <div>
+            <a href="@Url.Action("Profile", "Account")#orders" class="small text-secondary text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to my orders</a>
+            <div class="eyebrow mt-3">ORDER DETAILS</div>
+            <h1 class="display-6 mb-1">@Model.OrderNumber</h1>
+            <p class="text-secondary mb-0">Placed @Model.OrderedAtUtc.ToString("dd MMM yyyy, h:mm tt")</p>
+        </div>
+        <div class="text-md-end">
+            <span class="order-status-badge order-status-large">@Model.Status</span>
+            <div class="h4 mb-0 mt-2">&#8377;@Model.Total.ToString("N0")</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="summary-card">
+                @if (Model.Status != "Cancelled")
+                {
+                    <div class="status-track mb-4">
+                        @foreach (var status in statuses)
+                        {
+                            var rank = Array.IndexOf(statuses, status);
+                            <div class="status-step @(orderRank >= rank ? "active" : "")"><span></span><small>@status</small></div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger"><i class="bi bi-x-circle-fill me-2"></i>This order was cancelled.</div>
+                }
+
+                <h2 class="h5 mb-3">Items</h2>
+                @foreach (var item in Model.Items)
+                {
+                    <div class="order-detail-item">
+                        <div>
+                            <strong>@item.ProductName</strong>
+                            <div class="small text-secondary">@item.Color · Size @item.Size · Qty @item.Quantity</div>
+                        </div>
+                        <strong>&#8377;@((item.UnitPrice * item.Quantity).ToString("N0"))</strong>
+                    </div>
+                }
+
+                <div class="order-totals mt-4">
+                    <div><span>Subtotal</span><span>&#8377;@Model.Subtotal.ToString("N0")</span></div>
+                    <div><span>Discount</span><span>-&#8377;@Model.Discount.ToString("N0")</span></div>
+                    <div><span>Delivery</span><span>@(Model.DeliveryFee == 0 ? "Free" : "₹" + Model.DeliveryFee.ToString("N0"))</span></div>
+                    <div class="total"><span>Total</span><span>&#8377;@Model.Total.ToString("N0")</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="summary-card mb-4">
+                <div class="eyebrow mb-2">DELIVERY</div>
+                <h2 class="h5">@Model.CustomerName</h2>
+                <p class="mb-1">@Model.AddressLine1</p>
+                @if (!string.IsNullOrWhiteSpace(Model.AddressLine2)) { <p class="mb-1">@Model.AddressLine2</p> }
+                <p class="mb-1">@Model.City, @Model.State @Model.PostalCode</p>
+                <p class="text-secondary mb-0 mt-3">@Model.Phone<br />@Model.Email</p>
+            </div>
+            <a href="@Url.Action("Track", "Order")" class="btn btn-outline-dark w-100 rounded-pill">Track another order</a>
+        </div>
+    </div>
+</div>
