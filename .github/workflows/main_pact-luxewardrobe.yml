@@ -1,54 +1,68 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP app to Azure Web App - pact-luxewardrobe
+name: Build and deploy ASP.NET MVC 5 app to Azure Web App - pact-luxewardrobe
 
 on:
   push:
     branches:
-      - 'main'
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - name: Setup MSBuild path
-        uses: microsoft/setup-msbuild@v1.0.2
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v3
 
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
+        uses: NuGet/setup-nuget@v3
 
       - name: Restore NuGet packages
-        run: nuget restore
+        run: nuget restore LuxeWardrobe.sln
 
-      - name: Publish to folder
-        run: msbuild /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
+      - name: Build solution
+        run: msbuild LuxeWardrobe.sln /nologo /verbosity:minimal /p:Configuration=Release
+
+      - name: Prepare deployment files
+        shell: pwsh
+        run: |
+          $publishDir = "${{ github.workspace }}\published"
+          New-Item -ItemType Directory -Path $publishDir -Force | Out-Null
+
+          robocopy "${{ github.workspace }}\LuxeWardrobe" $publishDir /E /XD obj Properties /XF *.cs *.csproj packages.config README.md
+
+          if ($LASTEXITCODE -ge 8) {
+            exit $LASTEXITCODE
+          }
+
+          exit 0
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: ASP-app
-          path: '/published/**'
+          path: published
+          if-no-files-found: error
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: ASP-app
-      
+          path: published
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -57,10 +71,8 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_828C715B97114A848FFBB59982794D3B }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'pact-luxewardrobe'
-          slot-name: 'Production'
-          package: .
-          
+          app-name: pact-luxewardrobe
+          slot-name: Production
+          package: published
