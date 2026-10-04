@@ -3,7 +3,10 @@
     ViewBag.Title = "Shopping bag";
 }
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-end mb-4"><div><div class="eyebrow">YOUR SELECTION</div><h1 class="display-6 mb-0">Shopping bag</h1></div><a href="@Url.Action("Index", "Home")" class="link-dark">Continue shopping</a></div>
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div><div class="eyebrow">YOUR SELECTION</div><h1 class="display-6 mb-0">Shopping bag</h1></div>
+        <a href="@Url.Action("Index", "Home")" class="link-dark">Continue shopping</a>
+    </div>
 
     @if (Model.IsEmpty)
     {
@@ -15,40 +18,67 @@
             <div class="col-lg-8">
                 @foreach (var line in Model.Lines)
                 {
-                    <div class="cart-line py-4 border-bottom">
-                        <a href="@Url.Action("Details", "Products", new { id = line.ProductId, slug = line.Slug })"><img src="@Url.Content("~/Content/images/products/" + line.ImageFileName)" alt="@line.ProductName" data-image-file="@line.ImageFileName" data-placeholder="@Url.Content("~/Content/images/products/placeholder.svg")" onerror="luxeImageFallback(this)" /></a>
+                    <div class="cart-line py-4 border-bottom" data-cart-line data-product-id="@line.ProductId" data-size="@line.Size">
+                        <a href="@Url.Action("Details", "Products", new { id = line.ProductId, slug = line.Slug })">
+                            <img src="@Url.Content("~/Content/images/products/" + line.ImageFileName)"
+                                 alt="@line.ProductName"
+                                 data-image-file="@line.ImageFileName"
+                                 data-placeholder="@Url.Content("~/Content/images/products/placeholder.svg")"
+                                 onerror="luxeImageFallback(this)" />
+                        </a>
+
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between gap-3"><div><h3 class="h5 mb-1">@line.ProductName</h3><div class="text-secondary small">@line.Color &middot; Size @line.Size</div></div><strong>&#8377;@line.LineTotal.ToString("N0")</strong></div>
-                            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                                @using (Html.BeginForm("Update", "Cart", FormMethod.Post, new { @class = "d-flex align-items-center gap-2" }))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    @Html.Hidden("productId", line.ProductId)
-                                    @Html.Hidden("size", line.Size)
-                                    <input type="number" class="form-control form-control-sm qty-input" name="quantity" min="0" max="@Math.Min(10, line.AvailableStock)" value="@line.Quantity" />
-                                    <button class="btn btn-sm btn-outline-dark">Update</button>
-                                }
+                            <div class="d-flex justify-content-between gap-3">
+                                <div>
+                                    <h3 class="h5 mb-1">@line.ProductName</h3>
+                                    <div class="text-secondary small">@line.Color &middot; Size @line.Size</div>
+                                    <div class="text-secondary small mt-1">&#8377;@line.UnitPrice.ToString("N0") each</div>
+                                </div>
+                                <strong data-line-total>&#8377;@line.LineTotal.ToString("N0")</strong>
+                            </div>
+
+                            <form method="post" action="@Url.Action("UpdateQuantity", "Cart")" class="qty-control mt-3" data-qty-form>
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@line.ProductId" />
+                                <input type="hidden" name="size" value="@line.Size" />
+                                <button type="button" class="qty-button" data-qty-minus aria-label="Decrease quantity"><i class="bi bi-dash-lg"></i></button>
+                                <input type="number"
+                                       class="qty-input border-0 text-center"
+                                       name="quantity"
+                                       min="1"
+                                       max="@Math.Min(10, line.AvailableStock)"
+                                       value="@line.Quantity"
+                                       readonly />
+                                <button type="button" class="qty-button" data-qty-plus aria-label="Increase quantity"><i class="bi bi-plus-lg"></i></button>
+                            </form>
+
+                            <div class="d-flex align-items-center gap-2 mt-2">
                                 @using (Html.BeginForm("Remove", "Cart", FormMethod.Post))
                                 {
                                     @Html.AntiForgeryToken()
                                     @Html.Hidden("productId", line.ProductId)
                                     @Html.Hidden("size", line.Size)
-                                    <button class="btn btn-sm btn-link text-danger text-decoration-none"><i class="bi bi-trash me-1"></i>Remove</button>
+                                    <button class="btn btn-sm btn-link text-danger text-decoration-none px-0"><i class="bi bi-trash me-1"></i>Remove</button>
                                 }
                             </div>
-                            @if (line.AvailableStock <= 5) { <div class="small text-warning-emphasis mt-2">Only @line.AvailableStock left in this size.</div> }
+
+                            @if (line.AvailableStock <= 5)
+                            {
+                                <div class="small text-warning-emphasis mt-2">Only @line.AvailableStock left in this size.</div>
+                            }
                         </div>
                     </div>
                 }
             </div>
+
             <div class="col-lg-4">
                 <div class="summary-card sticky-lg-top">
                     <h2 class="h4 mb-4">Order summary</h2>
-                    <div class="summary-row"><span>Subtotal</span><span>&#8377;@Model.Subtotal.ToString("N0")</span></div>
-                    <div class="summary-row"><span>Discount</span><span>-&#8377;@Model.Discount.ToString("N0")</span></div>
-                    <div class="summary-row"><span>Delivery</span><span>@(Model.DeliveryFee == 0 ? "Free" : "&#8377;" + Model.DeliveryFee.ToString("N0"))</span></div>
+                    <div class="summary-row"><span>Subtotal</span><span data-cart-subtotal>&#8377;@Model.Subtotal.ToString("N0")</span></div>
+                    <div class="summary-row"><span>Discount</span><span data-cart-discount>-&#8377;@Model.Discount.ToString("N0")</span></div>
+                    <div class="summary-row"><span>Delivery</span><span data-cart-delivery>@(Model.DeliveryFee == 0 ? "Free" : "₹" + Model.DeliveryFee.ToString("N0"))</span></div>
                     <hr />
-                    <div class="summary-row total"><span>Total</span><span>&#8377;@Model.Total.ToString("N0")</span></div>
+                    <div class="summary-row total"><span>Total</span><span data-cart-total>&#8377;@Model.Total.ToString("N0")</span></div>
 
                     @using (Html.BeginForm("ApplyPromo", "Cart", FormMethod.Post, new { @class = "mt-4" }))
                     {
@@ -58,7 +88,10 @@
                         if (!string.IsNullOrWhiteSpace(Model.PromoMessage)) { <div class="small mt-2 text-secondary">@Model.PromoMessage</div> }
                     }
 
-                    <a href="@Url.Action("Index", "Checkout")" class="btn btn-dark btn-lg w-100 rounded-pill mt-4">Checkout</a>
+                    <a href="@Url.Action("Index", "Checkout")" class="btn btn-dark btn-lg w-100 rounded-pill mt-4">
+                        @(Session["CustomerId"] == null ? "Sign in & checkout" : "Checkout")
+                    </a>
+
                     <div class="small text-secondary mt-3"><i class="bi bi-lock me-1"></i>Prices and inventory are verified again before the order is saved.</div>
                 </div>
             </div>

@@ -32,6 +32,7 @@ namespace LuxeWardrobe.Controllers
 
             var current = SessionCartService.GetItems(Session).FirstOrDefault(x => x.ProductId == productId && x.Size == size);
             var requestedTotal = (current == null ? 0 : current.Quantity) + quantity;
+
             if (inventory.StockQuantity < requestedTotal)
             {
                 TempData["Error"] = "Only " + inventory.StockQuantity + " item(s) are available in size " + size + ".";
@@ -39,24 +40,40 @@ namespace LuxeWardrobe.Controllers
             }
 
             SessionCartService.Add(Session, productId, size, quantity);
-            TempData["Success"] = product.Name + " added to your bag.";
+
+            TempData["CartToastName"] = product.Name;
+            TempData["CartToastSize"] = size;
+            TempData["CartToastPrice"] = product.Price.ToString("N0");
+
             return SafeRedirect(returnUrl, productId, product.Slug);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Update(int productId, string size, int quantity)
         {
-            var inventory = _db.ProductSizeInventories.FirstOrDefault(x => x.ProductId == productId && x.Size == size);
-            if (inventory == null)
-            {
-                SessionCartService.Remove(Session, productId, size);
-            }
-            else
-            {
-                var safeQuantity = Math.Max(0, Math.Min(quantity, Math.Min(inventory.StockQuantity, 10)));
-                SessionCartService.SetQuantity(Session, productId, size, safeQuantity);
-            }
+            UpdateCartQuantity(productId, size, quantity);
             return RedirectToAction("Index");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public JsonResult UpdateQuantity(int productId, string size, int quantity)
+        {
+            var success = UpdateCartQuantity(productId, size, quantity);
+            var cart = CartPricingService.Build(_db, SessionCartService.GetItems(Session), SessionCartService.GetPromoCode(Session));
+            var line = cart.Lines.FirstOrDefault(x => x.ProductId == productId && x.Size == size);
+
+            return Json(new
+            {
+                success,
+                quantity = line == null ? 0 : line.Quantity,
+                lineTotal = line == null ? "0" : line.LineTotal.ToString("N0"),
+                subtotal = cart.Subtotal.ToString("N0"),
+                discount = cart.Discount.ToString("N0"),
+                delivery = cart.DeliveryFee == 0 ? "Free" : "₹" + cart.DeliveryFee.ToString("N0"),
+                total = cart.Total.ToString("N0"),
+                cartCount = SessionCartService.Count(Session),
+                removed = line == null
+            });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -72,6 +89,21 @@ namespace LuxeWardrobe.Controllers
         {
             SessionCartService.SetPromoCode(Session, promoCode);
             return RedirectToAction("Index");
+        }
+
+        private bool UpdateCartQuantity(int productId, string size, int quantity)
+        {
+            var inventory = _db.ProductSizeInventories.FirstOrDefault(x => x.ProductId == productId && x.Size == size);
+
+            if (inventory == null)
+            {
+                SessionCartService.Remove(Session, productId, size);
+                return false;
+            }
+
+            var safeQuantity = Math.Max(0, Math.Min(quantity, Math.Min(inventory.StockQuantity, 10)));
+            SessionCartService.SetQuantity(Session, productId, size, safeQuantity);
+            return safeQuantity == quantity;
         }
 
         private ActionResult SafeRedirect(string returnUrl, int productId, string slug)

@@ -3,16 +3,35 @@
     ViewBag.Title = "Checkout";
 }
 <div class="container py-5">
-    <div class="eyebrow">SECURE CHECKOUT</div><h1 class="display-6 mb-5">Delivery details</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-5">
+        <div>
+            <div class="eyebrow">SECURE CHECKOUT</div>
+            <h1 class="display-6 mb-0">Delivery details</h1>
+        </div>
+        <div class="small text-secondary">
+            Signed in as <strong>@Session["CustomerName"]</strong>
+        </div>
+    </div>
+
     <div class="row g-5">
         <div class="col-lg-7">
             @using (Html.BeginForm("Index", "Checkout", FormMethod.Post, new { @class = "checkout-form" }))
             {
                 @Html.AntiForgeryToken()
-                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger alert-dismissible fade show" })
+
+                @Html.HiddenFor(x => x.CustomerName)
+                @Html.HiddenFor(x => x.Email)
+
+                <div class="account-checkout-card mb-4">
+                    <i class="bi bi-person-check-fill"></i>
+                    <div>
+                        <strong>@Model.CustomerName</strong>
+                        <div class="small text-secondary">@Model.Email</div>
+                    </div>
+                </div>
+
                 <div class="row g-3">
-                    <div class="col-12"><label class="form-label">Full name</label>@Html.TextBoxFor(x => x.CustomerName, new { @class = "form-control", autocomplete = "name" })@Html.ValidationMessageFor(x => x.CustomerName, "", new { @class = "text-danger small" })</div>
-                    <div class="col-md-6"><label class="form-label">Email</label>@Html.TextBoxFor(x => x.Email, new { @class = "form-control", type = "email", autocomplete = "email" })@Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger small" })</div>
                     <div class="col-md-6"><label class="form-label">Phone</label>@Html.TextBoxFor(x => x.Phone, new { @class = "form-control", autocomplete = "tel" })@Html.ValidationMessageFor(x => x.Phone, "", new { @class = "text-danger small" })</div>
                     <div class="col-12"><label class="form-label">Address</label>@Html.TextBoxFor(x => x.AddressLine1, new { @class = "form-control", autocomplete = "street-address" })@Html.ValidationMessageFor(x => x.AddressLine1, "", new { @class = "text-danger small" })</div>
                     <div class="col-12"><label class="form-label">Apartment / landmark</label>@Html.TextBoxFor(x => x.AddressLine2, new { @class = "form-control" })</div>
@@ -20,21 +39,49 @@
                     <div class="col-md-4"><label class="form-label">State</label>@Html.TextBoxFor(x => x.State, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.State, "", new { @class = "text-danger small" })</div>
                     <div class="col-md-3"><label class="form-label">PIN code</label>@Html.TextBoxFor(x => x.PostalCode, new { @class = "form-control", inputmode = "numeric", maxlength = "6" })@Html.ValidationMessageFor(x => x.PostalCode, "", new { @class = "text-danger small" })</div>
                 </div>
-                <div class="payment-note mt-4"><i class="bi bi-cash-stack"></i><div><strong>Demo payment mode: Cash on Delivery</strong><div class="small text-secondary">No real payment gateway is connected in this converted version.</div></div></div>
-                <button class="btn btn-dark btn-lg rounded-pill px-5 mt-4">Place order &middot; &#8377;@Model.Cart.Total.ToString("N0")</button>
+
+                <div class="payment-note mt-4"><i class="bi bi-cash-stack"></i><div><strong>Cash on Delivery</strong><div class="small text-secondary">Payment is collected when your order arrives.</div></div></div>
+                <button class="btn btn-dark btn-lg rounded-pill px-5 mt-4" data-place-order>Place order &middot; &#8377;<span data-cart-total-number>@Model.Cart.Total.ToString("N0")</span></button>
             }
         </div>
+
         <div class="col-lg-4 offset-lg-1">
-            <div class="summary-card">
+            <div class="summary-card sticky-lg-top">
                 <h2 class="h5 mb-3">Your order</h2>
+
                 @foreach (var line in Model.Cart.Lines)
                 {
-                    <div class="d-flex justify-content-between gap-3 py-2 border-bottom small"><span>@line.ProductName &times; @line.Quantity <span class="text-secondary">(@line.Size)</span></span><strong>&#8377;@line.LineTotal.ToString("N0")</strong></div>
+                    <div class="checkout-line py-3 border-bottom" data-cart-line data-product-id="@line.ProductId" data-size="@line.Size">
+                        <div class="d-flex justify-content-between gap-3">
+                            <div>
+                                <strong class="small">@line.ProductName</strong>
+                                <div class="small text-secondary">Size @line.Size &middot; &#8377;@line.UnitPrice.ToString("N0") each</div>
+                            </div>
+                            <strong class="small" data-line-total>&#8377;@line.LineTotal.ToString("N0")</strong>
+                        </div>
+
+                        <form method="post" action="@Url.Action("UpdateQuantity", "Cart")" class="qty-control qty-control-sm mt-2" data-qty-form>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@line.ProductId" />
+                            <input type="hidden" name="size" value="@line.Size" />
+                            <button type="button" class="qty-button" data-qty-minus aria-label="Decrease quantity"><i class="bi bi-dash-lg"></i></button>
+                            <input type="number"
+                                   class="qty-input border-0 text-center"
+                                   name="quantity"
+                                   min="1"
+                                   max="@Math.Min(10, line.AvailableStock)"
+                                   value="@line.Quantity"
+                                   readonly />
+                            <button type="button" class="qty-button" data-qty-plus aria-label="Increase quantity"><i class="bi bi-plus-lg"></i></button>
+                        </form>
+                    </div>
                 }
-                <div class="summary-row mt-3"><span>Subtotal</span><span>&#8377;@Model.Cart.Subtotal.ToString("N0")</span></div>
-                <div class="summary-row"><span>Discount</span><span>-&#8377;@Model.Cart.Discount.ToString("N0")</span></div>
-                <div class="summary-row"><span>Delivery</span><span>@(Model.Cart.DeliveryFee == 0 ? "Free" : "&#8377;" + Model.Cart.DeliveryFee.ToString("N0"))</span></div>
-                <hr /><div class="summary-row total"><span>Total</span><span>&#8377;@Model.Cart.Total.ToString("N0")</span></div>
+
+                <div class="summary-row mt-3"><span>Subtotal</span><span data-cart-subtotal>&#8377;@Model.Cart.Subtotal.ToString("N0")</span></div>
+                <div class="summary-row"><span>Discount</span><span data-cart-discount>-&#8377;@Model.Cart.Discount.ToString("N0")</span></div>
+                <div class="summary-row"><span>Delivery</span><span data-cart-delivery>@(Model.Cart.DeliveryFee == 0 ? "Free" : "₹" + Model.Cart.DeliveryFee.ToString("N0"))</span></div>
+                <hr />
+                <div class="summary-row total"><span>Total</span><span data-cart-total>&#8377;@Model.Cart.Total.ToString("N0")</span></div>
             </div>
         </div>
     </div>

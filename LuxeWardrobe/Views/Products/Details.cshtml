@@ -2,12 +2,44 @@
 @{
     ViewBag.Title = Model.Product.Name;
     var available = Model.Product.Sizes.Where(x => x.StockQuantity > 0).OrderBy(x => x.Id).ToList();
+    var gallery = Model.GalleryImages ?? new List<string>();
 }
 <div class="container py-5">
     <div class="row g-5 align-items-start">
         <div class="col-lg-6">
-            <div class="detail-image-wrap"><img src="@Url.Content("~/Content/images/products/" + Model.Product.ImageFileName)" alt="@Model.Product.Name" class="detail-image" data-image-file="@Model.Product.ImageFileName" data-placeholder="@Url.Content("~/Content/images/products/placeholder.svg")" onerror="luxeImageFallback(this)" /></div>
+            <div class="product-gallery">
+                <div class="product-thumbnails">
+                    @for (var i = 0; i < gallery.Count; i++)
+                    {
+                        var image = gallery[i];
+                        var resolvedImage = image.StartsWith("~") ? Url.Content(image) : image;
+                        <button type="button"
+                                class="product-thumb-btn @(i == 0 ? "active" : "")"
+                                data-gallery-image="@resolvedImage"
+                                aria-label="View image @(i + 1)">
+                            <img src="@resolvedImage"
+                                 alt="@Model.Product.Name image @(i + 1)"
+                                 onerror="luxeImageFallback(this)" />
+                        </button>
+                    }
+                </div>
+
+                <div class="detail-image-wrap">
+                    @{
+                        var firstImage = gallery.Any() ? gallery[0] : "~/Content/images/products/placeholder.svg";
+                        var resolvedFirstImage = firstImage.StartsWith("~") ? Url.Content(firstImage) : firstImage;
+                    }
+                    <img id="mainProductImage"
+                         src="@resolvedFirstImage"
+                         alt="@Model.Product.Name"
+                         class="detail-image"
+                         data-image-file="@Model.Product.ImageFileName"
+                         data-placeholder="@Url.Content("~/Content/images/products/placeholder.svg")"
+                         onerror="luxeImageFallback(this)" />
+                </div>
+            </div>
         </div>
+
         <div class="col-lg-5 offset-lg-1">
             <div class="eyebrow mb-2">@Model.Product.Category</div>
             <h1 class="display-5 fw-semibold">@Model.Product.Name</h1>
@@ -25,6 +57,7 @@
                     @Html.Hidden("productId", Model.Product.Id)
                     @Html.Hidden("quantity", 1)
                     @Html.Hidden("returnUrl", Request.RawUrl)
+
                     <label class="form-label fw-semibold">Select size</label>
                     <div class="size-grid mb-4">
                         @foreach (var item in Model.Product.Sizes.OrderBy(x => x.Id))
@@ -36,13 +69,17 @@
                             </label>
                         }
                     </div>
-                    <button class="btn btn-dark btn-lg w-100 rounded-pill"><i class="bi bi-bag-plus me-2"></i>Add to bag</button>
+
+                    <button class="btn btn-dark btn-lg w-100 rounded-pill">
+                        <i class="bi bi-bag-plus me-2"></i>Add to bag
+                    </button>
                 }
             }
             else
             {
                 <button class="btn btn-secondary btn-lg w-100 rounded-pill" disabled>Out of stock</button>
             }
+
             <div class="benefits mt-4">
                 <div><i class="bi bi-truck"></i><span><strong>Free delivery</strong><small>On orders above &#8377;2,000</small></span></div>
                 <div><i class="bi bi-shield-check"></i><span><strong>Server-validated checkout</strong><small>Price and stock are rechecked</small></span></div>

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using LuxeWardrobe.Data;
+using LuxeWardrobe.Services;
 using LuxeWardrobe.ViewModels;
 
 namespace LuxeWardrobe.Controllers
@@ -15,7 +16,12 @@ namespace LuxeWardrobe.Controllers
         {
             var product = _db.Products.Include(x => x.Sizes).FirstOrDefault(x => x.Id == id && x.IsActive);
             if (product == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
-            return View(new ProductDetailsViewModel { Product = product });
+
+            return View(new ProductDetailsViewModel
+            {
+                Product = product,
+                GalleryImages = ProductGalleryService.GetImages(product)
+            });
         }
 
         protected override void Dispose(bool disposing)
