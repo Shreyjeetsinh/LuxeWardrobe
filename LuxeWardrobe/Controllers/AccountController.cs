@@ -116,11 +116,18 @@ namespace LuxeWardrobe.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult UpdateProfile(CustomerProfileViewModel model)
+        public ActionResult UpdateProfile(CustomerAccountViewModel pageModel)
         {
             var customer = GetCurrentCustomer();
+            var model = pageModel == null ? null : pageModel.Profile;
             if (customer == null)
                 return RedirectToAction("Login", new { returnUrl = Url.Action("Profile", "Account") });
+
+            if (model == null)
+            {
+                ModelState.AddModelError("", "Profile details are required.");
+                model = new CustomerProfileViewModel();
+            }
 
             if (!ModelState.IsValid)
             {
