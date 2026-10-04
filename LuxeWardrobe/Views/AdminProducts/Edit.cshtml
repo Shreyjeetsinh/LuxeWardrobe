@@ -1,5 +1,6 @@
 @model LuxeWardrobe.ViewModels.ProductEditViewModel
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var isNew = Model.Id == 0;
     ViewBag.Title = isNew ? "Add product" : "Edit product";
     var action = isNew ? "Create" : "Edit";
