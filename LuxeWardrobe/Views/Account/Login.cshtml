@@ -1,0 +1,44 @@
+@model LuxeWardrobe.ViewModels.CustomerLoginViewModel
+@{
+    ViewBag.Title = "Sign in";
+}
+<div class="container py-6">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="summary-card">
+                <div class="eyebrow">CUSTOMER ACCOUNT</div>
+                <h1 class="h2 mb-2">Sign in to checkout</h1>
+                <p class="text-secondary mb-4">Your bag stays ready while you sign in.</p>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, null))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", type = "email", autocomplete = "email", placeholder = "you@example.com" })
+                        @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Password</label>
+                        @Html.PasswordFor(x => x.Password, new { @class = "form-control", autocomplete = "current-password", placeholder = "Your password" })
+                        @Html.ValidationMessageFor(x => x.Password, "", new { @class = "text-danger small" })
+                    </div>
+                    <button class="btn btn-dark btn-lg w-100 rounded-pill">Sign in</button>
+                }
+
+                <div class="text-center small text-secondary mt-4">
+                    New here?
+                    <a href="@Url.Action("Register", "Account", new { returnUrl = ViewBag.ReturnUrl })" class="fw-semibold">Create an account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

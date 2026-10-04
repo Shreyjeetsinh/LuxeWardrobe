@@ -16,14 +16,29 @@ namespace LuxeWardrobe.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+            if (Session["CustomerId"] == null)
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Checkout") });
+
             var cart = CartPricingService.Build(_db, SessionCartService.GetItems(Session), SessionCartService.GetPromoCode(Session));
             if (cart.IsEmpty) return RedirectToAction("Index", "Cart");
-            return View(new CheckoutViewModel { Cart = cart });
+
+            return View(new CheckoutViewModel
+            {
+                Cart = cart,
+                CustomerName = Session["CustomerName"] as string,
+                Email = Session["CustomerEmail"] as string
+            });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Index(CheckoutViewModel model)
         {
+            if (Session["CustomerId"] == null)
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Checkout") });
+
+            model.CustomerName = Session["CustomerName"] as string;
+            model.Email = Session["CustomerEmail"] as string;
+
             var sessionItems = SessionCartService.GetItems(Session).ToList();
             var cart = CartPricingService.Build(_db, sessionItems, SessionCartService.GetPromoCode(Session));
             model.Cart = cart;
