@@ -12,9 +12,9 @@ namespace LuxeWardrobe.Data
         {
             var products = new List<Product>
             {
-                BuildProduct("Printed cotton rugby shirt", "printed-cotton-rugby-shirt", "A polished striped rugby shirt in breathable cotton.", "Shirts", "Navy blue / Striped", 1299m, "t-1.avif", 9),
-                BuildProduct("Cotton shirt", "cotton-shirt-light-blue", "Everyday cotton shirt with a clean, relaxed fit.", "Shirts", "Light Blue", 799m, "t-2.avif", 12),
-                BuildProduct("Cotton shirt", "cotton-shirt-white", "Minimal white cotton shirt designed for easy everyday styling.", "Shirts", "White", 799m, "t-3.avif", 10)
+                BuildProduct("Printed cotton rugby shirt", "printed-cotton-rugby-shirt", "A polished striped rugby shirt in breathable cotton.", "Shirts", "Navy blue / Striped", 1299m, "1.avif", 9),
+                BuildProduct("Cotton shirt", "cotton-shirt-light-blue", "Everyday cotton shirt with a clean, relaxed fit.", "Shirts", "Light Blue", 799m, "2A.avif", 12),
+                BuildProduct("Cotton shirt", "cotton-shirt-white", "Minimal white cotton shirt designed for easy everyday styling.", "Shirts", "White", 799m, "3.avif", 10)
             };
 
             products.ForEach(x => context.Products.Add(x));
