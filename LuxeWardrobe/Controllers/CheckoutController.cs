@@ -22,7 +22,7 @@ namespace LuxeWardrobe.Controllers
             var cart = CartPricingService.Build(_db, SessionCartService.GetItems(Session), SessionCartService.GetPromoCode(Session));
             if (cart.IsEmpty) return RedirectToAction("Index", "Cart");
 
-            var customerId = Session["CustomerId"] as int?;
+            int? customerId = Session["CustomerId"] == null ? (int?)null : Convert.ToInt32(Session["CustomerId"]);
             var customer = customerId.HasValue ? _db.CustomerAccounts.FirstOrDefault(x => x.Id == customerId.Value) : null;
 
             return View(new CheckoutViewModel
@@ -40,7 +40,7 @@ namespace LuxeWardrobe.Controllers
             if (Session["CustomerId"] == null)
                 return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Checkout") });
 
-            var customerId = Session["CustomerId"] as int?;
+            int? customerId = Session["CustomerId"] == null ? (int?)null : Convert.ToInt32(Session["CustomerId"]);
             var customer = customerId.HasValue ? _db.CustomerAccounts.FirstOrDefault(x => x.Id == customerId.Value) : null;
 
             model.CustomerName = customer == null ? Session["CustomerName"] as string : customer.FullName;
