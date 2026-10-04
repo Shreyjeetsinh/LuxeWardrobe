@@ -32,6 +32,11 @@
                         @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger small" })
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Phone <span class="text-secondary">(optional)</span></label>
+                        @Html.TextBoxFor(x => x.Phone, new { @class = "form-control", type = "tel", autocomplete = "tel", placeholder = "Your phone number" })
+                        @Html.ValidationMessageFor(x => x.Phone, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Password</label>
                         @Html.PasswordFor(x => x.Password, new { @class = "form-control", autocomplete = "new-password" })
                         @Html.ValidationMessageFor(x => x.Password, "", new { @class = "text-danger small" })
