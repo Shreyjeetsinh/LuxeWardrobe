@@ -267,3 +267,10 @@ a { color: inherit; }
   .admin-login-shell{min-height:100svh;padding:10px}
   .admin-login-card{padding:1.15rem;border-radius:18px}
 }
+
+@media(max-width:575px){
+  .admin-edit-actions{display:grid!important;grid-template-columns:1fr 1fr;width:100%}
+  .admin-edit-actions .btn{width:100%}
+  .admin-content input,.admin-content select,.admin-content textarea{font-size:16px}
+  .admin-content .btn{min-height:40px}
+}
