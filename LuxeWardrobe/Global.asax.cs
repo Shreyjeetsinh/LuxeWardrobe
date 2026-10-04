@@ -36,6 +36,10 @@ BEGIN
         CONSTRAINT [UQ_CustomerAccounts_Email] UNIQUE ([Email])
     );
 END
+
+UPDATE [dbo].[Products] SET [ImageFileName] = '1.avif' WHERE [Id] = 1 AND [ImageFileName] LIKE 't-%';
+UPDATE [dbo].[Products] SET [ImageFileName] = '2A.avif' WHERE [Id] = 2 AND [ImageFileName] LIKE 't-%';
+UPDATE [dbo].[Products] SET [ImageFileName] = '3.avif' WHERE [Id] = 3 AND [ImageFileName] LIKE 't-%';
 ");
         }
     }
