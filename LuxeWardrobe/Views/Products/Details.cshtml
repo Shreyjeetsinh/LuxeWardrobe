@@ -6,12 +6,12 @@
 <div class="container py-5">
     <div class="row g-5 align-items-start">
         <div class="col-lg-6">
-            <div class="detail-image-wrap"><img src="@Url.Content("~/Content/images/products/" + Model.Product.ImageFileName)" alt="@Model.Product.Name" class="detail-image" /></div>
+            <div class="detail-image-wrap"><img src="@Url.Content("~/Content/images/products/" + Model.Product.ImageFileName)" alt="@Model.Product.Name" class="detail-image" data-image-file="@Model.Product.ImageFileName" data-placeholder="@Url.Content("~/Content/images/products/placeholder.svg")" onerror="luxeImageFallback(this)" /></div>
         </div>
         <div class="col-lg-5 offset-lg-1">
             <div class="eyebrow mb-2">@Model.Product.Category</div>
             <h1 class="display-5 fw-semibold">@Model.Product.Name</h1>
-            <p class="h3 mt-3">₹@Model.Product.Price.ToString("N0")</p>
+            <p class="h3 mt-3">&#8377;@Model.Product.Price.ToString("N0")</p>
             <p class="text-secondary">MRP inclusive of all taxes</p>
             <hr class="my-4" />
             <p>@Model.Product.Description</p>
@@ -44,7 +44,7 @@
                 <button class="btn btn-secondary btn-lg w-100 rounded-pill" disabled>Out of stock</button>
             }
             <div class="benefits mt-4">
-                <div><i class="bi bi-truck"></i><span><strong>Free delivery</strong><small>On orders above ₹2,000</small></span></div>
+                <div><i class="bi bi-truck"></i><span><strong>Free delivery</strong><small>On orders above &#8377;2,000</small></span></div>
                 <div><i class="bi bi-shield-check"></i><span><strong>Server-validated checkout</strong><small>Price and stock are rechecked</small></span></div>
             </div>
         </div>
