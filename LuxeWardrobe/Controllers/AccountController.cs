@@ -211,8 +211,9 @@ namespace LuxeWardrobe.Controllers
 
         private CustomerAccount GetCurrentCustomer()
         {
-            var id = Session["CustomerId"] as int?;
-            return id.HasValue ? _db.CustomerAccounts.FirstOrDefault(x => x.Id == id.Value) : null;
+            if (Session["CustomerId"] == null) return null;
+            var id = Convert.ToInt32(Session["CustomerId"]);
+            return _db.CustomerAccounts.FirstOrDefault(x => x.Id == id);
         }
 
         private void AttachLegacyOrders(CustomerAccount customer)
