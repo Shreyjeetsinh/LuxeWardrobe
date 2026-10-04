@@ -43,6 +43,23 @@ BEGIN
     );
 END
 
+IF COL_LENGTH('dbo.CustomerAccounts', 'Phone') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[CustomerAccounts] ADD [Phone] NVARCHAR(20) NULL;
+END
+
+IF COL_LENGTH('dbo.Orders', 'CustomerId') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Orders] ADD [CustomerId] INT NULL;
+    CREATE INDEX [IX_Orders_CustomerId] ON [dbo].[Orders]([CustomerId]);
+END
+
+UPDATE O
+SET O.CustomerId = C.Id
+FROM [dbo].[Orders] O
+INNER JOIN [dbo].[CustomerAccounts] C ON LOWER(O.Email) = LOWER(C.Email)
+WHERE O.CustomerId IS NULL;
+
 IF OBJECT_ID(N'[dbo].[ProductImages]', N'U') IS NULL
 BEGIN
     CREATE TABLE [dbo].[ProductImages]
