@@ -31,19 +31,19 @@
 
                     <div class="mb-3">
                         <label class="form-label">Full name</label>
-                        @Html.TextBoxFor(x => x.Profile.FullName, new { @class = "form-control", name = "FullName", autocomplete = "name" })
+                        @Html.TextBoxFor(x => x.Profile.FullName, new { @class = "form-control", autocomplete = "name" })
                         @Html.ValidationMessageFor(x => x.Profile.FullName, "", new { @class = "text-danger small" })
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        @Html.TextBoxFor(x => x.Profile.Email, new { @class = "form-control", name = "Email", type = "email", autocomplete = "email" })
+                        @Html.TextBoxFor(x => x.Profile.Email, new { @class = "form-control", type = "email", autocomplete = "email" })
                         @Html.ValidationMessageFor(x => x.Profile.Email, "", new { @class = "text-danger small" })
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">Phone</label>
-                        @Html.TextBoxFor(x => x.Profile.Phone, new { @class = "form-control", name = "Phone", type = "tel", autocomplete = "tel", placeholder = "Add your phone number" })
+                        @Html.TextBoxFor(x => x.Profile.Phone, new { @class = "form-control", type = "tel", autocomplete = "tel", placeholder = "Add your phone number" })
                         @Html.ValidationMessageFor(x => x.Profile.Phone, "", new { @class = "text-danger small" })
                     </div>
 
