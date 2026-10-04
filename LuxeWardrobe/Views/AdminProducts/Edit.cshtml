@@ -5,28 +5,152 @@
     ViewBag.Title = isNew ? "Add product" : "Edit product";
     var action = isNew ? "Create" : "Edit";
 }
-<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-9">
-    <div class="d-flex justify-content-between align-items-end mb-4"><div><div class="eyebrow">ADMIN / PRODUCT</div><h1 class="display-6 mb-0">@(isNew ? "Add product" : "Edit product")</h1></div><a href="@Url.Action("Index")" class="btn btn-outline-dark rounded-pill">Back</a></div>
-    @using (Html.BeginForm(action, "AdminProducts", FormMethod.Post, new { @class = "summary-card" }))
-    {
-        @Html.AntiForgeryToken() @Html.HiddenFor(x => x.Id)
-        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
-        <div class="row g-3">
-            <div class="col-md-8"><label class="form-label">Name</label>@Html.TextBoxFor(x => x.Name, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.Name, "", new { @class = "text-danger small" })</div>
-            <div class="col-md-4"><label class="form-label">Price</label>@Html.TextBoxFor(x => x.Price, new { @class = "form-control", type = "number", step = "1", min = "1" })</div>
-            <div class="col-md-6"><label class="form-label">Slug</label>@Html.TextBoxFor(x => x.Slug, new { @class = "form-control" })@Html.ValidationMessageFor(x => x.Slug, "", new { @class = "text-danger small" })</div>
-            <div class="col-md-3"><label class="form-label">Category</label>@Html.TextBoxFor(x => x.Category, new { @class = "form-control" })</div>
-            <div class="col-md-3"><label class="form-label">Color</label>@Html.TextBoxFor(x => x.Color, new { @class = "form-control" })</div>
-            <div class="col-12"><label class="form-label">Description</label>@Html.TextAreaFor(x => x.Description, 4, 30, new { @class = "form-control" })</div>
-            <div class="col-md-8"><label class="form-label">Image file name</label>@Html.TextBoxFor(x => x.ImageFileName, new { @class = "form-control" })<div class="form-text">Place image files in Content/images/products.</div></div>
-            <div class="col-md-4 d-flex align-items-end"><div class="form-check mb-2">@Html.CheckBoxFor(x => x.IsActive, new { @class = "form-check-input" })<label class="form-check-label" for="IsActive">Visible in storefront</label></div></div>
-            <div class="col-12"><hr /><h2 class="h5">Stock by size</h2></div>
-            <div class="col">@Html.LabelFor(x => x.StockS, "S", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockS, new { @class = "form-control", type = "number", min = "0" })</div>
-            <div class="col">@Html.LabelFor(x => x.StockM, "M", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockM, new { @class = "form-control", type = "number", min = "0" })</div>
-            <div class="col">@Html.LabelFor(x => x.StockL, "L", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockL, new { @class = "form-control", type = "number", min = "0" })</div>
-            <div class="col">@Html.LabelFor(x => x.StockXL, "XL", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockXL, new { @class = "form-control", type = "number", min = "0" })</div>
-            <div class="col">@Html.LabelFor(x => x.StockXXL, "XXL", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockXXL, new { @class = "form-control", type = "number", min = "0" })</div>
+<div class="container-fluid py-4 py-lg-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+        <div>
+            <div class="eyebrow">ADMIN / PRODUCT</div>
+            <h1 class="display-6 mb-1">@(isNew ? "Add product" : "Edit product")</h1>
+            <p class="text-secondary mb-0">Everything saved here updates the storefront immediately.</p>
         </div>
-        <button class="btn btn-dark rounded-pill px-5 mt-4">Save product</button>
-    }
-</div></div></div>
+        <div class="d-flex gap-2 flex-wrap">
+            @if (!isNew)
+            {
+                <a href="@Url.Action("Details", "Products", new { id = Model.Id })" target="_blank" class="btn btn-outline-dark rounded-pill">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Preview
+                </a>
+            }
+            <a href="@Url.Action("Index")" class="btn btn-outline-dark rounded-pill">Back</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            @using (Html.BeginForm(action, "AdminProducts", FormMethod.Post, new { @class = "summary-card", enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(x => x.Id)
+
+                if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please fix the highlighted fields.</div>
+                        @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Product name</label>
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control", placeholder = "e.g. Oxford cotton shirt" })
+                        @Html.ValidationMessageFor(x => x.Name, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Price (₹)</label>
+                        @Html.TextBoxFor(x => x.Price, new { @class = "form-control", type = "number", step = "1", min = "1" })
+                        @Html.ValidationMessageFor(x => x.Price, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">URL slug</label>
+                        @Html.TextBoxFor(x => x.Slug, new { @class = "form-control", placeholder = "Leave blank to generate automatically" })
+                        <div class="form-text">Optional. A clean URL is generated from the product name.</div>
+                        @Html.ValidationMessageFor(x => x.Slug, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Category</label>
+                        @Html.TextBoxFor(x => x.Category, new { @class = "form-control", placeholder = "Shirts" })
+                        @Html.ValidationMessageFor(x => x.Category, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Color</label>
+                        @Html.TextBoxFor(x => x.Color, new { @class = "form-control", placeholder = "White" })
+                        @Html.ValidationMessageFor(x => x.Color, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        @Html.TextAreaFor(x => x.Description, 5, 30, new { @class = "form-control", placeholder = "Describe fit, fabric and product details..." })
+                        @Html.ValidationMessageFor(x => x.Description, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="col-12">
+                        <div class="admin-upload-box">
+                            <label class="form-label fw-semibold">Product images</label>
+                            <div class="small text-secondary mb-3">Upload up to 8 images. JPG, PNG, WEBP and AVIF are supported. Maximum 5 MB each.</div>
+                            <input class="form-control" type="file" name="images" accept=".jpg,.jpeg,.png,.webp,.avif,image/jpeg,image/png,image/webp,image/avif" multiple @(isNew ? "required" : "") />
+                        </div>
+                    </div>
+
+                    <div class="col-12"><hr class="my-2" /><h2 class="h5 mb-0">Inventory by size</h2></div>
+                    <div class="col-6 col-md">@Html.LabelFor(x => x.StockS, "S", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockS, new { @class = "form-control", type = "number", min = "0" })</div>
+                    <div class="col-6 col-md">@Html.LabelFor(x => x.StockM, "M", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockM, new { @class = "form-control", type = "number", min = "0" })</div>
+                    <div class="col-6 col-md">@Html.LabelFor(x => x.StockL, "L", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockL, new { @class = "form-control", type = "number", min = "0" })</div>
+                    <div class="col-6 col-md">@Html.LabelFor(x => x.StockXL, "XL", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockXL, new { @class = "form-control", type = "number", min = "0" })</div>
+                    <div class="col-6 col-md">@Html.LabelFor(x => x.StockXXL, "XXL", new { @class = "form-label" })@Html.TextBoxFor(x => x.StockXXL, new { @class = "form-control", type = "number", min = "0" })</div>
+
+                    <div class="col-12 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mt-3">
+                        <div class="form-check form-switch">
+                            @Html.CheckBoxFor(x => x.IsActive, new { @class = "form-check-input", role = "switch" })
+                            <label class="form-check-label" for="IsActive">Visible on storefront</label>
+                        </div>
+                        <button class="btn btn-dark rounded-pill px-5" type="submit"><i class="bi bi-check2-circle me-1"></i>@(isNew ? "Create product" : "Save changes")</button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-xl-4">
+            <div class="summary-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div><div class="eyebrow">GALLERY</div><h2 class="h5 mb-0">Current images</h2></div>
+                    @if (!isNew) { <span class="badge text-bg-light border">@Model.ExistingImages.Count / 8</span> }
+                </div>
+
+                @if (isNew)
+                {
+                    <div class="admin-image-empty"><i class="bi bi-images"></i><p class="mb-0">Upload your product images when creating the product.</p></div>
+                }
+                else if (Model.ExistingImages.Any())
+                {
+                    <div class="admin-image-grid">
+                        @foreach (var image in Model.ExistingImages)
+                        {
+                            <div class="admin-image-card @(image.IsPrimary ? "is-primary" : "")">
+                                <img src="@Url.Action("Image", "Products", new { id = image.Id })" alt="@image.FileName" />
+                                <div class="p-2">
+                                    <div class="small text-truncate mb-2" title="@image.FileName">@image.FileName</div>
+                                    @if (image.IsPrimary)
+                                    {
+                                        <span class="badge text-bg-dark mb-2">Primary</span>
+                                    }
+                                    else
+                                    {
+                                        using (Html.BeginForm("SetPrimaryImage", "AdminProducts", FormMethod.Post, new { @class = "mb-2" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("productId", Model.Id)
+                                            @Html.Hidden("imageId", image.Id)
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="submit">Make primary</button>
+                                        }
+                                    }
+                                    @using (Html.BeginForm("DeleteImage", "AdminProducts", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("productId", Model.Id)
+                                        @Html.Hidden("imageId", image.Id)
+                                        <button class="btn btn-sm btn-outline-danger w-100" type="submit" onclick="return confirm('Remove this image?')">Remove</button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-image-empty"><i class="bi bi-images"></i><p class="mb-0">No images yet. Add images using the form.</p></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
