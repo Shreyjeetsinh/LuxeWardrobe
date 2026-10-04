@@ -15,6 +15,8 @@ namespace LuxeWardrobe.Data
             return Environment.GetEnvironmentVariable("SQLAZURECONNSTR_LuxeWardrobeDb")
                 ?? Environment.GetEnvironmentVariable("SQLCONNSTR_LuxeWardrobeDb")
                 ?? Environment.GetEnvironmentVariable("CUSTOMCONNSTR_LuxeWardrobeDb")
+                ?? Environment.GetEnvironmentVariable("APPSETTING_LuxeWardrobeDb")
+                ?? Environment.GetEnvironmentVariable("LuxeWardrobeDb")
                 ?? "name=LuxeWardrobeDb";
         }
 
